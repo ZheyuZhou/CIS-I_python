@@ -41,15 +41,11 @@ h_calreadings_D = np.zeros((h_num_calreadings_Frame,h_num_calreadings_D,3))
 h_calreadings_A = np.zeros((h_num_calreadings_Frame,h_num_calreadings_A,3))
 h_calreadings_C = np.zeros((h_num_calreadings_Frame,h_num_calreadings_C,3))
 
-
 for i in range (h_num_calreadings_Frame):
     I = i*h_num_calreadings_len
     h_calreadings_D[i] = h_calreadings[(1) + I : (1+h_num_calreadings_D) + I , :-1]
     h_calreadings_A[i] = h_calreadings[(1+h_num_calreadings_D) + I : (1+h_num_calreadings_D+h_num_calreadings_A) + I,:-1]
     h_calreadings_C[i] = h_calreadings[(1+h_num_calreadings_D+h_num_calreadings_A) + I : (1+h_num_calreadings_D+h_num_calreadings_A+h_num_calreadings_C) + I,:-1]
-
-
-print(h_calreadings_A[7])
 
 # h_empivot
 df_pa1_h_empivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-empivot.txt", 
@@ -61,14 +57,47 @@ h_num_calempivot = h_calempivot[0]
 h_num_calempivot_G = int(h_num_calempivot[0])
 h_num_calempivot_Frame = int(h_num_calempivot[1])
 
-h_calempivot_G = h_calempivot[1:(1+h_num_calempivot_G),:]
-h_calempivot_Frame = h_calempivot[(1+h_num_calempivot_G):(1+h_num_calempivot_G+h_num_calempivot_Frame),:]
+h_num_calempivot_len = h_num_calempivot_G
 
+h_calempivot_G = np.zeros((h_num_calempivot_Frame,h_num_calempivot_G,3))
+
+for j in range (h_num_calempivot_Frame):
+    J = j*h_num_calempivot_len
+    h_calempivot_G[j] = h_calempivot[1 + J : (1+h_num_calempivot_G) + J, : -1]
 
 # h_optpivot
-# df_pa1_h_optpivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-optpivot.txt", 
-# header=None, names=['N_D','N_H','N_Frames','Name_OPTPIVOT'])
-# h_caloptpivot = df_pa1_h_optpivot[['N_D','N_H','N_Frames']].to_numpy()
+df_pa1_h_optpivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-optpivot.txt", 
+header=None, names=['N_D','N_H','N_Frames','Name_OPTPIVOT'])
+h_caloptpivot = df_pa1_h_optpivot[['N_D','N_H','N_Frames']].to_numpy()
+
+h_num_caloptpivot = h_caloptpivot[0]
+
+h_num_caloptpivot_D = int(h_num_caloptpivot[0])
+h_num_caloptpivot_H = int(h_num_caloptpivot[1])
+h_num_caloptpivot_Frame = int(h_num_caloptpivot[2])
+
+h_num_caloptpivot_len = h_num_caloptpivot_D + h_num_caloptpivot_H
+
+h_caloptpivot_D = np.zeros((h_num_caloptpivot_Frame,h_num_caloptpivot_D ,3))
+h_caloptpivot_H = np.zeros((h_num_caloptpivot_Frame,h_num_caloptpivot_H,3))
+
+for k in range (h_num_caloptpivot_Frame):
+    K = k*h_num_caloptpivot_len
+    h_caloptpivot_D[i] = h_caloptpivot[(1) + K : (1+h_num_caloptpivot_D) + K , :-1]
+    h_caloptpivot_H[i] = h_caloptpivot[(1+h_num_caloptpivot_D) + K : (1+h_num_caloptpivot_D+h_num_caloptpivot_H) + K,:-1]
+
+
+# 
+def Cloudregistration(A,B):
+    sh = np.shape
+    for i in range (sh(A)[0]):
+        for j in range (sh(A)[1]):
+            a_bar=
+            
+            
+            
+
+
 
 # h_num_caloptpivot = df_pa1_h_optpivot[0]
 
