@@ -268,7 +268,7 @@ F_A = np.array([F_A])[0]
 
 
 # Calibration of EM
-F_G_total = []
+F_G = []
 for j in range (h_num_calempivot_Frame):
     # EM points
     G_EM = h_calempivot_G[j]
@@ -287,13 +287,12 @@ for j in range (h_num_calempivot_Frame):
     
     # calculate EM marker Point Cloud Transformation 
     
-    F_G = Cloudregistration(gj, G_EM)
+    F_G.append(Cloudregistration(gj, G_EM))
     #Store all the matrix
-    F_G_total.append(F_G)
-F_G_total = np.array(F_G_total)
+F_G = np.array(F_G)
 
-print(F_G_total)
-print(np.shape(F_G_total))
+# print(F_G)
+# print(np.shape(F_G))
 
 
     
