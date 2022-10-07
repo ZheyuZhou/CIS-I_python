@@ -238,17 +238,87 @@ def Cloudregistration(a,A):
     return F 
 
 
+
 #######################################################################################
 #######################################################################################
 ############### Test  #################################################################
 #######################################################################################
 #######################################################################################
 
-# F_D Transformation between optical tracker and EM tracker coordinates
-F_D_0 = Cloudregistration(h_calbody_d,h_calreadings_D[0])
-print(F_D_0)
+# F_D Transformation between optical tracker and EM tracker coordinates through all data frames
+F_D = []
+for i in range (len(h_calbody_d)):
+    F_D.append(Cloudregistration(h_calbody_d,h_calreadings_D[i]))
 
-#For i in range():
+F_D = np.array([F_D])[0]
+# print(F_D)
+# print(np.shape(F_D))
+
+# F_A transformation between calibration object and optical trackercoordinates through all data frames
+F_A = []
+for j in range (len(h_calbody_a)):
+    F_A.append(Cloudregistration(h_calbody_a,h_calreadings_A[i]))
+
+F_A = np.array([F_A])[0]
+# print(F_A)
+# print(np.shape(F_A))
+
+# Get C_vector 
+
+
+
+# Calibration of EM
+F_G_total = []
+for j in range (h_num_calempivot_Frame):
+    # EM points
+    G_EM = h_calempivot_G[j]
+
+    # Calc average
+    G0 = np.mean(G_EM, axis=0)
+
+    # Calc diff between each vec and average
+    gj = []
+    for i in range (len(G_EM)):
+        gj.append(G_EM[i]-G0)
+    
+    gj = np.array(gj)
+    # print(gj)
+    # print(np.shape(gj))
+    
+    # calculate EM marker Point Cloud Transformation 
+    
+    F_G = Cloudregistration(gj, G_EM)
+    #Store all the matrix
+    F_G_total.append(F_G)
+F_G_total = np.array(F_G_total)
+
+print(F_G_total)
+print(np.shape(F_G_total))
+
+
+    
+
+    
+        
+
+
+    
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
 
 # def Rotation(psi, theta, phi):
 #     # rotate about x -> psi
