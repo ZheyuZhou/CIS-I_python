@@ -252,7 +252,7 @@ for i in range (len(h_calbody_d)):
 
 F_D = np.array([F_D])[0]
 # print(F_D)
-# print(np.shape(F_D))
+print(np.shape(F_D))
 
 # F_A transformation between calibration object and optical trackercoordinates through all data frames
 F_A = []
@@ -261,10 +261,32 @@ for j in range (len(h_calbody_a)):
 
 F_A = np.array([F_A])[0]
 # print(F_A)
-# print(np.shape(F_A))
+print(np.shape(F_A))
 
-# Get C_vector 
+# Calc C_vector expected for each data frame
+C_vec_expected = []
+C_vec_expected_d = []
+# print(h_calbody_c)
+# print(np.shape(h_calbody_c))
 
+# Make c into 4x1 matrix
+c_I = np.ones((len(h_calbody_c), 1))
+
+c = np.hstack((h_calbody_c,c_I))
+
+c_T = c.T
+# print(c)
+# print(np.shape(c))
+# print(c.T)
+# print(np.shape(c.T))
+for d in range(len(F_D)):
+    F_D_d = F_D[d]
+    F_A_d = F_A[d]
+    for k in range(len(h_calbody_c)):
+        C = np.linalg.inv(F_D_d) @ F_A_d @ c_T[:,k]
+        C_vec_expected.append(C)
+# print(C_vec_expected)
+print(np.shape(C_vec_expected))
 
 
 # Calibration of EM
