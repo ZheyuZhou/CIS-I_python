@@ -54,13 +54,16 @@ h_num_calbody_c = int(h_num_calbody[2])
 h_calbody_d = h_calbody[1:(1+h_num_calbody_d),:]
 h_calbody_a = h_calbody[(1+h_num_calbody_d):(1+h_num_calbody_d+h_num_calbody_a),:]
 h_calbody_c = h_calbody[(1+h_num_calbody_d+h_num_calbody_a):(1+h_num_calbody_d+h_num_calbody_a+h_num_calbody_c),:]
+# print(h_calbody_d)
+# print(h_calbody_a)
+# print(h_calbody_c)
 
 # h_calreadings
 # Read from TXT
 df_pa1_h_calreadings = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-calreadings.txt", 
 header=None, names=['N_D','N_A','N_C','N_Frame','Name_CALREADING'])
 h_calreadings = df_pa1_h_calreadings[['N_D','N_A','N_C','N_Frame']].to_numpy()
-print(np.shape(h_calreadings))
+# print(h_calreadings)
 h_num_calreadings = h_calreadings[0]
 
 # get num
@@ -81,12 +84,15 @@ for i in range (h_num_calreadings_Frame):
     h_calreadings_D[i] = h_calreadings[(1) + I : (1+h_num_calreadings_D) + I , :-1]
     h_calreadings_A[i] = h_calreadings[(1+h_num_calreadings_D) + I : (1+h_num_calreadings_D+h_num_calreadings_A) + I,:-1]
     h_calreadings_C[i] = h_calreadings[(1+h_num_calreadings_D+h_num_calreadings_A) + I : (1+h_num_calreadings_D+h_num_calreadings_A+h_num_calreadings_C) + I,:-1]
+    # print(h_calreadings_D[i])
+    # print(h_calreadings_A[i])
+    # print(h_calreadings_C[i])
 
 # h_empivot
 # Read from TXT
 df_pa1_h_empivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-empivot.txt", 
 header=None, names=['N_G','N_Frame','Name_EMPIVOT'])
-h_calempivot = df_pa1_h_empivot[['N_G','N_Frame']].to_numpy()
+h_calempivot = df_pa1_h_empivot[['N_G','N_Frame','Name_EMPIVOT']].to_numpy()
 
 # get num 
 h_num_calempivot = h_calempivot[0]
@@ -101,7 +107,8 @@ h_calempivot_G = np.zeros((h_num_calempivot_Frame,h_num_calempivot_G,3))
 
 for j in range (h_num_calempivot_Frame):
     J = j*h_num_calempivot_len
-    h_calempivot_G[j] = h_calempivot[1 + J : (1+h_num_calempivot_G) + J, : -1]
+    h_calempivot_G[j] = h_calempivot[1 + J : (1+h_num_calempivot_G) + J, : ]
+    # print(h_calempivot_G[j])
 
 # h_optpivot
 # Read from TXT
@@ -124,9 +131,10 @@ h_caloptpivot_H = np.zeros((h_num_caloptpivot_Frame,h_num_caloptpivot_H,3))
 
 for k in range (h_num_caloptpivot_Frame):
     K = k*h_num_caloptpivot_len
-    h_caloptpivot_D[i] = h_caloptpivot[(1) + K : (1+h_num_caloptpivot_D) + K , :-1]
-    h_caloptpivot_H[i] = h_caloptpivot[(1+h_num_caloptpivot_D) + K : (1+h_num_caloptpivot_D+h_num_caloptpivot_H) + K,:-1]
-
+    h_caloptpivot_D[k] = h_caloptpivot[(1) + K : (1+h_num_caloptpivot_D) + K , : ]
+    h_caloptpivot_H[k] = h_caloptpivot[(1+h_num_caloptpivot_D) + K : (1+h_num_caloptpivot_D+h_num_caloptpivot_H) + K,: ]
+    # print(h_caloptpivot_D[k])
+    # print(h_caloptpivot_H[k])
 
 #######################################################################################
 #######################################################################################
@@ -176,7 +184,7 @@ def Cloudregistration(a,A):
         ])
 
     # Treat H and Get G
-    Tr_H = np.array([np.trace(H)])
+    Tr_H = np.array([[np.trace(H)]])
 
     H23 = H[1][2]
     H32 = H[2][1]
@@ -185,6 +193,7 @@ def Cloudregistration(a,A):
     H12 = H[0][1]
     H21 = H[1][0]
 
+    
     Delta = np.array([
         [H23-H32],
         [H31-H13],
@@ -192,7 +201,7 @@ def Cloudregistration(a,A):
     ])
 
     Delta_T = Delta.T
-
+    
     H_HT_TrH_I = H + H.T - np.eye(3)*np.trace(H)
 
     G1 = np.hstack((Tr_H, Delta_T))
@@ -219,21 +228,27 @@ def Cloudregistration(a,A):
 
     # Calc translation
     p = A_bar - R@a_bar
+    p = np.reshape(p, (3,1))
 
     # Organize to get Transformation
     F1 = np.hstack((R,p))
     F2 = np.array([0,0,0,1])
     F = np.vstack((F1,F2))
 
-    return R, p, F 
-
-# F = Cloudregistration(h_calreadings_D, h_calbody_d)
+    return F 
 
 
+#######################################################################################
+#######################################################################################
+############### Test  #################################################################
+#######################################################################################
+#######################################################################################
 
+# F_D Transformation between optical tracker and EM tracker coordinates
+F_D_0 = Cloudregistration(h_calbody_d,h_calreadings_D[0])
+print(F_D_0)
 
-# 
-
+#For i in range():
 
 # def Rotation(psi, theta, phi):
 #     # rotate about x -> psi
