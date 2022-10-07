@@ -1,35 +1,69 @@
-# Imports
+#  .............................................
+#                     _ooOoo_  
+#                    o8888888o  
+#                    88" . "88  
+#                    (| -_- |)  
+#                     O\ = /O  
+#                 ____/`---'\____  
+#               .   ' \\| |// `.  
+#                / \\||| : |||// \  
+#              / _||||| -:- |||||- \  
+#                | | \\\ - /// | |  
+#              | \_| ''\---/'' | |  
+#               \ .-\__ `-` ___/-. /  
+#            ___`. .' /--.--\ `. . __  
+#         ."" '< `.___\_<|>_/___.' >'"".  
+#        | | : `- \`.;`\ _ /`;.`/ - ` : | |  
+#          \ \ `-. \_ __\ /__ _/ .-` / /  
+#  ======`-.____`-.___\_____/___.-`____.-'======  
+#                     `=---='  
+#
+#           佛祖保佑             永无BUG 
+#  .............................................  
+
+#######################################################################################
+#######################################################################################
+############### Imports  ##############################################################
+#######################################################################################
+#######################################################################################
 
 import numpy as np
 import pandas as pd
 
-# Import Data
 
-# read text file into pandas DataFrame
+#######################################################################################
+#######################################################################################
+############### Data Import  ##########################################################
+#######################################################################################
+#######################################################################################
 
 # h_calbody
+# Read from TXT
 df_pa1_h_calbody = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-calbody.txt", 
 header=None, names=['N_d','N_a','N_c','Name_CALBODY'])
 h_calbody = df_pa1_h_calbody[['N_d','N_a','N_c']].to_numpy()
 
+# get num
 h_num_calbody = h_calbody[0]
 
 h_num_calbody_d = int(h_num_calbody[0])
 h_num_calbody_a = int(h_num_calbody[1])
 h_num_calbody_c = int(h_num_calbody[2])
 
-
+# Trim to get d, a, c
 h_calbody_d = h_calbody[1:(1+h_num_calbody_d),:]
 h_calbody_a = h_calbody[(1+h_num_calbody_d):(1+h_num_calbody_d+h_num_calbody_a),:]
 h_calbody_c = h_calbody[(1+h_num_calbody_d+h_num_calbody_a):(1+h_num_calbody_d+h_num_calbody_a+h_num_calbody_c),:]
 
 # h_calreadings
+# Read from TXT
 df_pa1_h_calreadings = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-calreadings.txt", 
 header=None, names=['N_D','N_A','N_C','N_Frame','Name_CALREADING'])
 h_calreadings = df_pa1_h_calreadings[['N_D','N_A','N_C','N_Frame']].to_numpy()
 print(np.shape(h_calreadings))
 h_num_calreadings = h_calreadings[0]
 
+# get num
 h_num_calreadings_D = int(h_num_calreadings[0])
 h_num_calreadings_A = int(h_num_calreadings[1])
 h_num_calreadings_C = int(h_num_calreadings[2])
@@ -37,6 +71,7 @@ h_num_calreadings_Frame = int(h_num_calreadings[3])
 
 h_num_calreadings_len = h_num_calreadings_D + h_num_calreadings_A + h_num_calreadings_C
 
+# Trim to get D, A, C
 h_calreadings_D = np.zeros((h_num_calreadings_Frame,h_num_calreadings_D,3))
 h_calreadings_A = np.zeros((h_num_calreadings_Frame,h_num_calreadings_A,3))
 h_calreadings_C = np.zeros((h_num_calreadings_Frame,h_num_calreadings_C,3))
@@ -48,10 +83,12 @@ for i in range (h_num_calreadings_Frame):
     h_calreadings_C[i] = h_calreadings[(1+h_num_calreadings_D+h_num_calreadings_A) + I : (1+h_num_calreadings_D+h_num_calreadings_A+h_num_calreadings_C) + I,:-1]
 
 # h_empivot
+# Read from TXT
 df_pa1_h_empivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-empivot.txt", 
 header=None, names=['N_G','N_Frame','Name_EMPIVOT'])
 h_calempivot = df_pa1_h_empivot[['N_G','N_Frame']].to_numpy()
 
+# get num 
 h_num_calempivot = h_calempivot[0]
 
 h_num_calempivot_G = int(h_num_calempivot[0])
@@ -59,6 +96,7 @@ h_num_calempivot_Frame = int(h_num_calempivot[1])
 
 h_num_calempivot_len = h_num_calempivot_G
 
+# Trim to get em G
 h_calempivot_G = np.zeros((h_num_calempivot_Frame,h_num_calempivot_G,3))
 
 for j in range (h_num_calempivot_Frame):
@@ -66,10 +104,12 @@ for j in range (h_num_calempivot_Frame):
     h_calempivot_G[j] = h_calempivot[1 + J : (1+h_num_calempivot_G) + J, : -1]
 
 # h_optpivot
+# Read from TXT
 df_pa1_h_optpivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-optpivot.txt", 
 header=None, names=['N_D','N_H','N_Frames','Name_OPTPIVOT'])
 h_caloptpivot = df_pa1_h_optpivot[['N_D','N_H','N_Frames']].to_numpy()
 
+# get num
 h_num_caloptpivot = h_caloptpivot[0]
 
 h_num_caloptpivot_D = int(h_num_caloptpivot[0])
@@ -78,6 +118,7 @@ h_num_caloptpivot_Frame = int(h_num_caloptpivot[2])
 
 h_num_caloptpivot_len = h_num_caloptpivot_D + h_num_caloptpivot_H
 
+# Trim to get opt D, opt H
 h_caloptpivot_D = np.zeros((h_num_caloptpivot_Frame,h_num_caloptpivot_D ,3))
 h_caloptpivot_H = np.zeros((h_num_caloptpivot_Frame,h_num_caloptpivot_H,3))
 
@@ -87,30 +128,109 @@ for k in range (h_num_caloptpivot_Frame):
     h_caloptpivot_H[i] = h_caloptpivot[(1+h_num_caloptpivot_D) + K : (1+h_num_caloptpivot_D+h_num_caloptpivot_H) + K,:-1]
 
 
-# 
-def Cloudregistration(A,B):
-    sh = np.shape
-    for i in range (sh(A)[0]):
-        for j in range (sh(A)[1]):
-            a_bar=
-            
-            
-            
+#######################################################################################
+#######################################################################################
+############### Functions  ############################################################
+#######################################################################################
+#######################################################################################
+
+
+# Point Cloud to Point Cloud 
+def Cloudregistration(a,A):
+
+    # Calc average
+    a_bar = np.mean(a, axis=0)
+
+    A_bar = np.mean(A, axis=0)
+
+    # Calc difference
+    a_tilde = []
+    for a_ in a:
+        a_tilde.append(a_bar - a_)
+
+    
+    A_tilde = []
+    for A_ in A:
+        A_tilde.append(A_bar - A_)
+
+    # Get H matrix
+    H = np.zeros((3,3))
+
+    for num_markers in range(len(A)): # len(A) = len(a) becaus the len is num of marker
+        d_tx_D_tx = a_tilde[num_markers][0]*A_tilde[num_markers][0]
+        d_tx_D_ty = a_tilde[num_markers][0]*A_tilde[num_markers][1]
+        d_tx_D_tz = a_tilde[num_markers][0]*A_tilde[num_markers][2]
+
+        d_ty_D_tx = a_tilde[num_markers][1]*A_tilde[num_markers][0]
+        d_ty_D_ty = a_tilde[num_markers][1]*A_tilde[num_markers][1]
+        d_ty_D_tz = a_tilde[num_markers][1]*A_tilde[num_markers][2]
+
+        d_tz_D_tx = a_tilde[num_markers][2]*A_tilde[num_markers][0]
+        d_tz_D_ty = a_tilde[num_markers][2]*A_tilde[num_markers][1]
+        d_tz_D_tz = a_tilde[num_markers][2]*A_tilde[num_markers][2]
+
+        H += np.array([
+            [d_tx_D_tx, d_tx_D_ty, d_tx_D_tz],
+            [d_ty_D_tx, d_ty_D_ty, d_ty_D_tz],
+            [d_tz_D_tx, d_tz_D_ty, d_tz_D_tz]
+        ])
+
+    # Treat H and Get G
+    Tr_H = np.array([np.trace(H)])
+
+    H23 = H[1][2]
+    H32 = H[2][1]
+    H31 = H[2][0]
+    H13 = H[0][2]
+    H12 = H[0][1]
+    H21 = H[1][0]
+
+    Delta = np.array([
+        [H23-H32],
+        [H31-H13],
+        [H12-H21]
+    ])
+
+    Delta_T = Delta.T
+
+    H_HT_TrH_I = H + H.T - np.eye(3)*np.trace(H)
+
+    G1 = np.hstack((Tr_H, Delta_T))
+    G2 = np.hstack((Delta, H_HT_TrH_I))
+
+    G = np.vstack((G1,G2))
+
+    # Eig-val Decomp to get Eig-vec corresponds to largest(first) Eig-val
+    eig_val, eig_vec = np.linalg.eig(G)
+
+    Qk = eig_vec[:,0]
+
+    q0 = Qk[0]
+    q1 = Qk[1]
+    q2 = Qk[2]
+    q3 = Qk[3] 
+
+    # Plug in Unit Quaternion(Eig-vec above) to get Rotation Matrix
+    R = np.array([
+        [q0**2 + q1**2 - q2**2 - q3**2, 2*(q1*q2 - q0*q3), 2*(q1*q3 + q0*q2)],
+        [2*(q1*q2 + q0*q3), q0**2 - q1**2 + q2**2 - q3**2, 2*(q2*q3 - q0*q1)],
+        [2*(q1*q3 - q0*q2), 2*(q2*q3 + q0*q1), q0**2 - q1**2 - q2**2 + q3**2]
+    ])
+
+    # Calc translation
+    p = A_bar - R@a_bar
+
+    # Organize to get Transformation
+    F1 = np.hstack((R,p))
+    F2 = np.array([0,0,0,1])
+    F = np.vstack((F1,F2))
+
+    return R, p, F 
+
+# F = Cloudregistration(h_calreadings_D, h_calbody_d)
 
 
 
-# h_num_caloptpivot = df_pa1_h_optpivot[0]
-
-# h_num_caloptpivot_D = h_num_caloptpivot[0]
-# h_num_caloptpivot_H = h_num_caloptpivot[1]
-# h_num_caloptpivot_Frame = h_num_caloptpivot[2]
-
-# h_caloptpivot_D = h_caloptpivot[1:(1+h_num_caloptpivot_D),:]
-# h_caloptpivot_H = h_caloptpivot[(1+h_num_caloptpivot_D):(1+h_num_caloptpivot_D+h_num_caloptpivot_H),:]
-# h_caloptpivot_Frame = h_caloptpivot[(1+h_num_caloptpivot_D+h_num_caloptpivot_H):(1+h_num_caloptpivot_D+h_num_caloptpivot_H+h_num_caloptpivot_Frame),:]
-
-
-# Functions
 
 # 
 
