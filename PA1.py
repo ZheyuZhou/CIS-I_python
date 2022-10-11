@@ -252,7 +252,7 @@ for i in range (len(h_calbody_d)):
 
 F_D = np.array([F_D])[0]
 # print(F_D)
-print(np.shape(F_D))
+# print(np.shape(F_D))
 
 # F_A transformation between calibration object and optical trackercoordinates through all data frames
 F_A = []
@@ -261,7 +261,7 @@ for j in range (len(h_calbody_a)):
 
 F_A = np.array([F_A])[0]
 # print(F_A)
-print(np.shape(F_A))
+# print(np.shape(F_A))
 
 # Calc C_vector expected for each data frame
 C_vec_expected = []
@@ -286,7 +286,29 @@ for d in range(len(F_D)):
         C = np.linalg.inv(F_D_d) @ F_A_d @ c_T[:,k]
         C_vec_expected.append(C)
 # print(C_vec_expected)
-print(np.shape(C_vec_expected))
+# print(np.shape(C_vec_expected))
+
+# Testing of part 2 
+a = np.array([[1,2,3,1],[2,3,4,1],[3,6,4,1]])
+b = np.array([[1,2,3,0],[2,3,4,2],[3,1,5,2],[0,0,0,1]])
+c = []
+for i in range (len(a)):
+    c.append(b.dot(a[i]))
+c = np.array(c)
+# print(c)
+
+T = np.array([[1/np.sqrt(2),1/np.sqrt(2),0],[-1/np.sqrt(2),-1/np.sqrt(2),0],[0,0,1]])
+t = np.array([[1,0,0],[-1,0,0],[0,0,1]])
+
+T1 = np.array([[1/np.sqrt(2),1/np.sqrt(2),0,1],[-1/np.sqrt(2),-1/np.sqrt(2),0,1],[0,0,1,1]])
+t1 = np.array([[1,0,0,1],[-1,0,0,1],[0,0,1,1]])
+
+# da an
+# Fk = np.array([[1,2,3,0],[2,3,4,2],[3,1,5,2],[0,0,0,1]])
+# T = Fk*t
+print(Cloudregistration(t,T))
+f1 = Cloudregistration(t,T)
+print(T1[2] == f1@t1[2])
 
 
 # Calibration of EM
