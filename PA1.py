@@ -244,18 +244,32 @@ def Cloudregistration(a,A):
 
     return F 
 
-def LeastSquare(F_j):
-    # Calc R and p from F
-    R_j = F_j[0:3 , 0:3]
-    p_j = F_j[0:3, 3:4]
-    neg_I = -np.eye(3)
+def LeastSquare(F):
+    R = np.array([[0,0,0]])
+    p = np.array([[0]])
+    neg_I = np.array([[0,0,0]])
+    for F_j in F:
+        # Slice R and p out of F
+        R_j = F_j[0:3 , 0:3]
+        p_j = F_j[0:3, 3:4]
+
+        neg_I_j = -np.eye(3)
+
+        R = np.concatenate((R,R_j),axis=0)
+        p = np.concatenate((p,p_j),axis=0)
+        neg_I = np.concatenate((neg_I,neg_I_j),axis=0)
+
+    # Slice out the 0,0,0 on first row for R, p, neg_I
+    R = R[1:, :]
+    p = p[1:, :]
+    neg_I = neg_I[1:, :]
     
-    Coeff_Matrix = np.concatenate((R_j,neg_I),axis=1)
+    Coeff_Matrix = np.concatenate((R,neg_I),axis=1)
 
     # print(Coeff_Matrix)
     # print(np.shape(Coeff_Matrix))
     # Calc t_G and P_dimple with least square
-    LS_sol = np.linalg.lstsq(Coeff_Matrix, p_j)[0]
+    LS_sol = np.linalg.lstsq(Coeff_Matrix, -p)[0]
     
     t_G = LS_sol[0:3]
     P_dimple = LS_sol[3:6]
@@ -334,45 +348,38 @@ for d in range(len(F_D)):
 #     return P_dimple, t_G
 
 # Calibration of EM
+
+# Calc g_j
+
+# EM point is first data frame
+G_1 = h_calempivot_G[0]
+
+# Calc average in first data frame
+G_1_0 = np.mean(G_1, axis=0)
+
+g_j = []
+for G_j in G_1:
+    g_j.append(G_j - G_1_0)
+g_j = np.array(g_j)
+# print(g_j, 'g_j')
+
+# Calc F_G
 F_G = []
 for j in range (h_num_calempivot_Frame):
-    # EM points
+    # EM points from each data frame
     G_EM = h_calempivot_G[j]
-
-    # Calc average
-    G0 = np.mean(G_EM, axis=0)
-
-    # Calc diff between each vec and average
-    gj = []
-    for i in range (len(G_EM)):
-        gj.append(G_EM[i]-G0)
-    
-    gj = np.array(gj)
-    # print(gj)
-    # print(np.shape(gj))
     
     # calculate EM marker Point Cloud Transformation 
     
-    F_G.append(Cloudregistration(gj, G_EM))
+    F_G.append(Cloudregistration(g_j, G_EM))
     # Store all the matrix
 F_G = np.array(F_G)
 
-P_dimple_j = []
-t_G_j = []
-
-for F_j in F_G:
-    P_dimple = LeastSquare(F_j)[0]
-    t_G = LeastSquare(F_j)[1]
-
-    P_dimple_j.append(P_dimple)
-    t_G_j.append(t_G)
-
-P_dimple_j = np.array(P_dimple_j)
-t_G_j = np.array(t_G_j)
-
-
-# print(P_dimple_j, 'P')
-# print(t_G_j, 't')
+# Use Least Square to solve for P_dimple and t_G
+P_dimple = LeastSquare(F_G)[0]
+t_G = LeastSquare(F_G)[1]
+print(P_dimple, 'P')
+print(t_G, 't')
 
 # print(F_G)
 # print(np.shape(F_G))
