@@ -29,6 +29,7 @@
 
 import numpy as np
 import pandas as pd
+# from tqdm import tqdm_gui
 
 
 #######################################################################################
@@ -39,7 +40,7 @@ import pandas as pd
 
 # h_calbody
 # Read from TXT
-df_pa1_h_calbody = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-calbody.txt", 
+df_pa1_h_calbody = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-debug-a-calbody.txt", 
 header=None, names=['N_d','N_a','N_c','Name_CALBODY'])
 h_calbody = df_pa1_h_calbody[['N_d','N_a','N_c']].to_numpy()
 
@@ -60,7 +61,7 @@ h_calbody_c = h_calbody[(1+h_num_calbody_d+h_num_calbody_a):(1+h_num_calbody_d+h
 
 # h_calreadings
 # Read from TXT
-df_pa1_h_calreadings = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-calreadings.txt", 
+df_pa1_h_calreadings = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-debug-a-calreadings.txt", 
 header=None, names=['N_D','N_A','N_C','N_Frame','Name_CALREADING'])
 h_calreadings = df_pa1_h_calreadings[['N_D','N_A','N_C','N_Frame']].to_numpy()
 # print(h_calreadings)
@@ -90,7 +91,7 @@ for i in range (h_num_calreadings_Frame):
 
 # h_empivot
 # Read from TXT
-df_pa1_h_empivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-empivot.txt", 
+df_pa1_h_empivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-debug-a-empivot.txt", 
 header=None, names=['N_G','N_Frame','Name_EMPIVOT'])
 h_calempivot = df_pa1_h_empivot[['N_G','N_Frame','Name_EMPIVOT']].to_numpy()
 
@@ -112,7 +113,7 @@ for j in range (h_num_calempivot_Frame):
 
 # h_optpivot
 # Read from TXT
-df_pa1_h_optpivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-unknown-h-optpivot.txt", 
+df_pa1_h_optpivot = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-debug-a-optpivot.txt", 
 header=None, names=['N_D','N_H','N_Frames','Name_OPTPIVOT'])
 h_caloptpivot = df_pa1_h_optpivot[['N_D','N_H','N_Frames']].to_numpy()
 
@@ -212,12 +213,18 @@ def Cloudregistration(a,A):
     # Eig-val Decomp to get Eig-vec corresponds to largest(first) Eig-val
     eig_val, eig_vec = np.linalg.eig(G)
 
-    Qk = eig_vec[:,0]
+    max_eig_val_index = np.argmax(eig_val)
+
+    Qk = eig_vec[:,max_eig_val_index]
+    # print(eig_vec, 'eig_vec')
+    # print(Qk, 'Qk')
 
     q0 = Qk[0]
     q1 = Qk[1]
     q2 = Qk[2]
-    q3 = Qk[3] 
+    q3 = Qk[3]
+
+
 
     # Plug in Unit Quaternion(Eig-vec above) to get Rotation Matrix
     R = np.array([
@@ -237,6 +244,23 @@ def Cloudregistration(a,A):
 
     return F 
 
+def LeastSquare(F_j):
+    # Calc R and p from F
+    R_j = F_j[0:3 , 0:3]
+    p_j = F_j[0:3, 3:4]
+    neg_I = -np.eye(3)
+    
+    Coeff_Matrix = np.concatenate((R_j,neg_I),axis=1)
+
+    # print(Coeff_Matrix)
+    # print(np.shape(Coeff_Matrix))
+    # Calc t_G and P_dimple with least square
+    LS_sol = np.linalg.lstsq(Coeff_Matrix, p_j)[0]
+    
+    t_G = LS_sol[0:3]
+    P_dimple = LS_sol[3:6]
+
+    return P_dimple, t_G
 
 
 #######################################################################################
@@ -249,16 +273,17 @@ def Cloudregistration(a,A):
 F_D = []
 for i in range (len(h_calbody_d)):
     F_D.append(Cloudregistration(h_calbody_d,h_calreadings_D[i]))
+    # print('F_D')
 
 F_D = np.array([F_D])[0]
 # print(F_D)
-# print(np.shape(F_D))
+# print(np.shape(F_D),' shape F_D')
 
 # F_A transformation between calibration object and optical trackercoordinates through all data frames
 F_A = []
 for j in range (len(h_calbody_a)):
-    F_A.append(Cloudregistration(h_calbody_a,h_calreadings_A[i]))
-
+    F_A.append(Cloudregistration(h_calbody_a,h_calreadings_A[j]))
+    # print('F_A')
 F_A = np.array([F_A])[0]
 # print(F_A)
 # print(np.shape(F_A))
@@ -279,37 +304,34 @@ c_T = c.T
 # print(np.shape(c))
 # print(c.T)
 # print(np.shape(c.T))
+# print(c_T[:,0])
 for d in range(len(F_D)):
     F_D_d = F_D[d]
     F_A_d = F_A[d]
     for k in range(len(h_calbody_c)):
         C = np.linalg.inv(F_D_d) @ F_A_d @ c_T[:,k]
+        C = C[0:3]
         C_vec_expected.append(C)
-# print(C_vec_expected)
-# print(np.shape(C_vec_expected))
+# print(C_vec_expected, 'C_expected')
+# print(np.shape(C_vec_expected), 'C_expected shape')
 
-# Testing of part 2 
-a = np.array([[1,2,3,1],[2,3,4,1],[3,6,4,1]])
-b = np.array([[1,2,3,0],[2,3,4,2],[3,1,5,2],[0,0,0,1]])
-c = []
-for i in range (len(a)):
-    c.append(b.dot(a[i]))
-c = np.array(c)
-# print(c)
+# def LeastSquare1(F_j):
+#     # Calc R and p from F
+#     R_j = F_j[0:3 , 0:3]
+#     p_j = F_j[0:3, 3:4]
+#     neg_I = -np.eye(3)
+    
+#     Coeff_Matrix = np.concatenate((R_j,neg_I),axis=1)
 
-T = np.array([[1/np.sqrt(2),1/np.sqrt(2),0],[-1/np.sqrt(2),-1/np.sqrt(2),0],[0,0,1]])
-t = np.array([[1,0,0],[-1,0,0],[0,0,1]])
+#     print(Coeff_Matrix)
+#     print(np.shape(Coeff_Matrix))
+#     # Calc t_G and P_dimple with least square
+#     LS_sol = np.linalg.inv(np.transpose(Coeff_Matrix)@Coeff_Matrix)@np.transpose(Coeff_Matrix)@p_j
+#     print(LS_sol, 'sol')
+#     t_G = LS_sol[0:3]
+#     P_dimple = LS_sol[3:6]
 
-T1 = np.array([[1/np.sqrt(2),1/np.sqrt(2),0,1],[-1/np.sqrt(2),-1/np.sqrt(2),0,1],[0,0,1,1]])
-t1 = np.array([[1,0,0,1],[-1,0,0,1],[0,0,1,1]])
-
-# da an
-# Fk = np.array([[1,2,3,0],[2,3,4,2],[3,1,5,2],[0,0,0,1]])
-# T = Fk*t
-print(Cloudregistration(t,T))
-f1 = Cloudregistration(t,T)
-print(T1[2] == f1@t1[2])
-
+#     return P_dimple, t_G
 
 # Calibration of EM
 F_G = []
@@ -332,36 +354,54 @@ for j in range (h_num_calempivot_Frame):
     # calculate EM marker Point Cloud Transformation 
     
     F_G.append(Cloudregistration(gj, G_EM))
-    #Store all the matrix
+    # Store all the matrix
 F_G = np.array(F_G)
+
+P_dimple_j = []
+t_G_j = []
+
+for F_j in F_G:
+    P_dimple = LeastSquare(F_j)[0]
+    t_G = LeastSquare(F_j)[1]
+
+    P_dimple_j.append(P_dimple)
+    t_G_j.append(t_G)
+
+P_dimple_j = np.array(P_dimple_j)
+t_G_j = np.array(t_G_j)
+
+
+# print(P_dimple_j, 'P')
+# print(t_G_j, 't')
 
 # print(F_G)
 # print(np.shape(F_G))
 
+# F1 = F_G[0]
+# print(np.shape(F1))
+# print(LeastSquare(F1))
 
-    
+# Testing of part 2 
+# a = np.array([[1,2,3,1],[2,3,4,1],[3,6,4,1]])
+# b = np.array([[1,2,3,0],[2,3,4,2],[3,1,5,2],[0,0,0,1]])
+# c = []
+# for i in range (len(a)):
+#     c.append(b.dot(a[i]))
+# c = np.array(c)
+# # print(c)
 
-    
-        
+# T = np.array([[1/np.sqrt(2),1/np.sqrt(2),0],[-1/np.sqrt(2),-1/np.sqrt(2),0],[0,0,1]])
+# t = np.array([[1,0,0],[-1,0,0],[0,0,1]])
 
+# T1 = np.array([[1/np.sqrt(2),1/np.sqrt(2),0,1],[-1/np.sqrt(2),-1/np.sqrt(2),0,1],[0,0,1,1]])
+# t1 = np.array([[1,0,0,1],[-1,0,0,1],[0,0,1,1]])
 
-    
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
+# # da an
+# # Fk = np.array([[1,2,3,0],[2,3,4,2],[3,1,5,2],[0,0,0,1]])
+# # T = Fk*t
+# print(Cloudregistration(t,T))
+# f1 = Cloudregistration(t,T)
+# print(T1[2] == f1@t1[2])
 
 # def Rotation(psi, theta, phi):
 #     # rotate about x -> psi
