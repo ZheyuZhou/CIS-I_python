@@ -28,7 +28,9 @@
 #######################################################################################
 
 import numpy as np
+# D. Cournapeau, P. Virtanen, A. R. Terrel, NumPy, GitHub. (n.d.). https://github.com/numpy (accessed October 12, 2022). 
 import pandas as pd
+# W. McKinney, Pandas, Pandas. (2022). https://pandas.pydata.org/ (accessed October 12, 2022). 
 # from tqdm import tqdm_gui
 
 
@@ -42,8 +44,9 @@ import pandas as pd
 # Read from TXT
 df_pa1_h_calbody = pd.read_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Data\pa1-debug-a-calbody.txt", 
 header=None, names=['N_d','N_a','N_c','Name_CALBODY'])
+# W. McKinney, PANDAS.READ_CSV#, Pandas.read_csv - Pandas 1.5.0 Documentation. (2022). https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html (accessed October 12, 2022). 
 h_calbody = df_pa1_h_calbody[['N_d','N_a','N_c']].to_numpy()
-
+# W. McKinney, Pandas.dataframe.to_numpy#, Pandas.DataFrame.to_numpy - Pandas 1.5.0 Documentation. (2022). https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_numpy.html (accessed October 12, 2022). 
 # get num
 h_num_calbody = h_calbody[0]
 
@@ -77,6 +80,7 @@ h_num_calreadings_len = h_num_calreadings_D + h_num_calreadings_A + h_num_calrea
 
 # Trim to get D, A, C
 h_calreadings_D = np.zeros((h_num_calreadings_Frame,h_num_calreadings_D,3))
+# C. Harris, Numpy.zeros#, Numpy.zeros - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.zeros.html (accessed October 12, 2022). 
 h_calreadings_A = np.zeros((h_num_calreadings_Frame,h_num_calreadings_A,3))
 h_calreadings_C = np.zeros((h_num_calreadings_Frame,h_num_calreadings_C,3))
 
@@ -145,13 +149,14 @@ for k in range (h_num_caloptpivot_Frame):
 
 
 # Point Cloud to Point Cloud 
+# B. K. P. Horn, Closed-form solution of absolute orientation using unit quaternions, Optica Publishing Group. (1987). https://opg.optica.org/josaa/fulltext.cfm?uri=josaa-4-4-629&amp;id=2711 (accessed October 12, 2022). 
 def Cloudregistration(a,A):
 
     # Calc average
     a_bar = np.mean(a, axis=0)
 
     A_bar = np.mean(A, axis=0)
-
+    # D. Gupta, Numpy.mean#, Numpy.mean - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.mean.html (accessed October 12, 2022). 
     # Calc difference
     a_tilde = []
     for a_ in a:
@@ -183,6 +188,7 @@ def Cloudregistration(a,A):
             [d_ty_D_tx, d_ty_D_ty, d_ty_D_tz],
             [d_tz_D_tx, d_tz_D_ty, d_tz_D_tz]
         ])
+        # C. Harris, Numpy.array#, Numpy.array - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.array.html (accessed October 12, 2022). 
 
     # Treat H and Get G
     Tr_H = np.array([[np.trace(H)]])
@@ -200,19 +206,23 @@ def Cloudregistration(a,A):
         [H31-H13],
         [H12-H21]
     ])
-
+    # transpose the matrix
     Delta_T = Delta.T
     
     H_HT_TrH_I = H + H.T - np.eye(3)*np.trace(H)
-
+    # C. Harris, Numpy.trace#, Numpy.trace - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.trace.html (accessed October 12, 2022). 
+    # Combine two matrix by horizonal
     G1 = np.hstack((Tr_H, Delta_T))
     G2 = np.hstack((Delta, H_HT_TrH_I))
-
+    # C. Harris, Numpy.hstack#, Numpy.hstack - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.hstack.html (accessed October 12, 2022). 
+    # Combine two matrix by vertical
     G = np.vstack((G1,G2))
+    # M. Bussonnier, Numpy.vstack#, Numpy.vstack - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.vstack.html (accessed October 12, 2022). 
 
     # Eig-val Decomp to get Eig-vec corresponds to largest(first) Eig-val
     eig_val, eig_vec = np.linalg.eig(G)
-
+    
+    # Choose the biggest eigenvalue and corresponding eigenvector
     max_eig_val_index = np.argmax(eig_val)
 
     Qk = eig_vec[:,max_eig_val_index]
@@ -276,6 +286,35 @@ def LeastSquare(F):
 
     return P_dimple, t_G
 
+def Point_Calibration(calpivot, num_calpivot_Frame):
+    # points in first data frame
+    P_1 = calpivot[0]
+
+    # points' average in first data frame
+    P_1_0 = np.mean(P_1, axis=0)
+
+    # Calc p_j differences between points and points average
+    p_j = []
+    for P_j in P_1:
+        p_j.append(P_j - P_1_0)
+    p_j = np.array(p_j)
+
+    # Calc F_P Transformation between EM coordinate to pointer
+    F_P = []
+    for j in range (num_calpivot_Frame):
+        # EM points from each data frame
+        P_EM = calpivot[j]
+    
+        # calculate EM marker Point Cloud Transformation 
+        # Store all the matrices
+        F_P.append(Cloudregistration(p_j, P_EM))
+        
+    F_P = np.array(F_P)
+
+    P_dimple = LeastSquare(F_P)[0]
+    t_p = LeastSquare(F_P)[1]
+
+    return P_dimple, t_p
 
 #######################################################################################
 #######################################################################################
@@ -329,111 +368,11 @@ for d in range(len(F_D)):
 # print(C_vec_expected, 'C_expected')
 # print(np.shape(C_vec_expected), 'C_expected shape')
 
-# def LeastSquare1(F_j):
-#     # Calc R and p from F
-#     R_j = F_j[0:3 , 0:3]
-#     p_j = F_j[0:3, 3:4]
-#     neg_I = -np.eye(3)
-    
-#     Coeff_Matrix = np.concatenate((R_j,neg_I),axis=1)
-
-#     print(Coeff_Matrix)
-#     print(np.shape(Coeff_Matrix))
-#     # Calc t_G and P_dimple with least square
-#     LS_sol = np.linalg.inv(np.transpose(Coeff_Matrix)@Coeff_Matrix)@np.transpose(Coeff_Matrix)@p_j
-#     print(LS_sol, 'sol')
-#     t_G = LS_sol[0:3]
-#     P_dimple = LS_sol[3:6]
-
-#     return P_dimple, t_G
 
 # Calibration of EM
+P_G_dimple, t_G = Point_Calibration(h_calempivot_G, h_num_calempivot_Frame)
+# print(P_G_dimple, 'P')
+# print(t_G, 't')
 
-# Calc g_j
-
-# EM point is first data frame
-G_1 = h_calempivot_G[0]
-
-# Calc average in first data frame
-G_1_0 = np.mean(G_1, axis=0)
-
-g_j = []
-for G_j in G_1:
-    g_j.append(G_j - G_1_0)
-g_j = np.array(g_j)
-# print(g_j, 'g_j')
-
-# Calc F_G
-F_G = []
-for j in range (h_num_calempivot_Frame):
-    # EM points from each data frame
-    G_EM = h_calempivot_G[j]
-    
-    # calculate EM marker Point Cloud Transformation 
-    
-    F_G.append(Cloudregistration(g_j, G_EM))
-    # Store all the matrix
-F_G = np.array(F_G)
-
-# Use Least Square to solve for P_dimple and t_G
-P_dimple = LeastSquare(F_G)[0]
-t_G = LeastSquare(F_G)[1]
-print(P_dimple, 'P')
-print(t_G, 't')
-
-# print(F_G)
-# print(np.shape(F_G))
-
-# F1 = F_G[0]
-# print(np.shape(F1))
-# print(LeastSquare(F1))
-
-# Testing of part 2 
-# a = np.array([[1,2,3,1],[2,3,4,1],[3,6,4,1]])
-# b = np.array([[1,2,3,0],[2,3,4,2],[3,1,5,2],[0,0,0,1]])
-# c = []
-# for i in range (len(a)):
-#     c.append(b.dot(a[i]))
-# c = np.array(c)
-# # print(c)
-
-# T = np.array([[1/np.sqrt(2),1/np.sqrt(2),0],[-1/np.sqrt(2),-1/np.sqrt(2),0],[0,0,1]])
-# t = np.array([[1,0,0],[-1,0,0],[0,0,1]])
-
-# T1 = np.array([[1/np.sqrt(2),1/np.sqrt(2),0,1],[-1/np.sqrt(2),-1/np.sqrt(2),0,1],[0,0,1,1]])
-# t1 = np.array([[1,0,0,1],[-1,0,0,1],[0,0,1,1]])
-
-# # da an
-# # Fk = np.array([[1,2,3,0],[2,3,4,2],[3,1,5,2],[0,0,0,1]])
-# # T = Fk*t
-# print(Cloudregistration(t,T))
-# f1 = Cloudregistration(t,T)
-# print(T1[2] == f1@t1[2])
-
-# def Rotation(psi, theta, phi):
-#     # rotate about x -> psi
-#     # rotate about y -> theta
-#     # rotate about z -> phi
-#     R = np.zeros((3,3))
-#     R = np.array([
-#         [np.cos(phi)*np.cos(theta),   -np.sin(phi)*np.cos(psi)+np.cos(phi)*np.sin(theta)*np.sin(psi),   np.sin(phi)*np.sin(psi)+np.cos(phi)*np.sin(theta)*np.cos(psi)],
-#         [np.sin(phi)*np.cos(theta),   np.cos(phi)*np.cos(psi)+np.sin(phi)*np.sin(theta)*np.sin(psi),   -np.cos(phi)*np.sin(psi)+np.sin(phi)*np.sin(theta)*np.cos(psi)],
-#         [-np.sin(theta),   np.cos(theta)*np.sin(psi),   np.cos(theta)*np.cos(psi)]
-#     ])
-    
-#     return R
-
-# def Frame_Transform(R,p):
-#     F = np.zeros((4,4))
-#     F= np.array([
-#         [R[0,0],R[0,1],R[0,2],p[0]],
-#         [R[1,0],R[1,1],R[1,2],p[1]],
-#         [R[2,0],R[2,1],R[2,2],p[2]],
-#         [0,0,0,1]])
-
-#     return F
-
-# # PA_1 Q3
-# def Pivot_Calibration():
-    
-#     return 0
+# Calibration of EM
+P_H_dimple, t_H = Point_Calibration(h_caloptpivot_H, h_num_caloptpivot_Frame)
