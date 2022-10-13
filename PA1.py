@@ -161,7 +161,6 @@ def Cloudregistration(a,A):
     a_tilde = []
     for a_ in a:
         a_tilde.append(a_bar - a_)
-
     
     A_tilde = []
     for A_ in A:
@@ -192,7 +191,7 @@ def Cloudregistration(a,A):
 
     # Treat H and Get G
     Tr_H = np.array([[np.trace(H)]])
-
+    
     H23 = H[1][2]
     H32 = H[2][1]
     H31 = H[2][0]
@@ -221,10 +220,10 @@ def Cloudregistration(a,A):
 
     # Eig-val Decomp to get Eig-vec corresponds to largest(first) Eig-val
     eig_val, eig_vec = np.linalg.eig(G)
-    
+    # I. Polat, Numpy.linalg.eig#, Numpy.linalg.eig - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html (accessed October 12, 2022). 
     # Choose the biggest eigenvalue and corresponding eigenvector
     max_eig_val_index = np.argmax(eig_val)
-
+    # D. Gupta, Numpy.argmax#, Numpy.argmax - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.argmax.html (accessed October 13, 2022). 
     Qk = eig_vec[:,max_eig_val_index]
     # print(eig_vec, 'eig_vec')
     # print(Qk, 'Qk')
@@ -245,7 +244,9 @@ def Cloudregistration(a,A):
 
     # Calc translation
     p = A_bar - R@a_bar
+    
     p = np.reshape(p, (3,1))
+    # D. Gupta, Numpy.reshape#, Numpy.reshape - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.reshape.html (accessed October 13, 2022). 
 
     # Organize to get Transformation
     F1 = np.hstack((R,p))
@@ -266,6 +267,7 @@ def LeastSquare(F):
         neg_I_j = -np.eye(3)
 
         R = np.concatenate((R,R_j),axis=0)
+        # I. Polat, Numpy.linalg.eig#, Numpy.linalg.eig - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html (accessed October 12, 2022). 
         p = np.concatenate((p,p_j),axis=0)
         neg_I = np.concatenate((neg_I,neg_I_j),axis=0)
 
@@ -280,11 +282,13 @@ def LeastSquare(F):
     # print(np.shape(Coeff_Matrix))
     # Calc t_G and P_dimple with least square
     LS_sol = np.linalg.lstsq(Coeff_Matrix, -p)[0]
-    
+    # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
     t_G = LS_sol[0:3]
     P_dimple = LS_sol[3:6]
 
     return P_dimple, t_G
+
+
 
 def Point_Calibration(calpivot, num_calpivot_Frame):
     # points in first data frame
@@ -314,7 +318,7 @@ def Point_Calibration(calpivot, num_calpivot_Frame):
     P_dimple = LeastSquare(F_P)[0]
     t_p = LeastSquare(F_P)[1]
 
-    return P_dimple, t_p
+    return P_dimple, t_p, F_P, p_j
 
 #######################################################################################
 #######################################################################################
@@ -349,7 +353,7 @@ C_vec_expected_d = []
 
 # Make c into 4x1 matrix
 c_I = np.ones((len(h_calbody_c), 1))
-
+# K. Lieret, Numpy.ones#, Numpy.ones - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ones.html (accessed October 13, 2022). 
 c = np.hstack((h_calbody_c,c_I))
 
 c_T = c.T
@@ -363,6 +367,7 @@ for d in range(len(F_D)):
     F_A_d = F_A[d]
     for k in range(len(h_calbody_c)):
         C = np.linalg.inv(F_D_d) @ F_A_d @ c_T[:,k]
+        # I. Polat, Numpy.linalg.inv#, Numpy.linalg.inv - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.inv.html (accessed October 13, 2022). 
         C = C[0:3]
         C_vec_expected.append(C)
 # print(C_vec_expected, 'C_expected')
@@ -370,9 +375,42 @@ for d in range(len(F_D)):
 
 
 # Calibration of EM
-P_G_dimple, t_G = Point_Calibration(h_calempivot_G, h_num_calempivot_Frame)
-# print(P_G_dimple, 'P')
+P_G_dimple, t_G, F_G, g_j = Point_Calibration(h_calempivot_G, h_num_calempivot_Frame)
+print(P_G_dimple, 'P')
+print(np.shape(P_G_dimple))
 # print(t_G, 't')
 
-# Calibration of EM
-P_H_dimple, t_H = Point_Calibration(h_caloptpivot_H, h_num_caloptpivot_Frame)
+# Calibration of Opt
+F_D_opt = []
+for i in range (h_num_caloptpivot_Frame):
+    F_D_opt.append(Cloudregistration(h_calbody_d,h_caloptpivot_D[i]))
+F_D_opt = np.array([F_D_opt])[0]
+
+P_H_dimple, t_H, F_H, h_j = Point_Calibration(h_caloptpivot_H, h_num_caloptpivot_Frame)
+
+F_D_opt_inv = np.linalg.inv(F_D_opt)
+F_D_opt_inv_H = F_D_opt_inv@F_H
+P_H_dimple = LeastSquare(F_D_opt_inv_H)[0]
+print(P_H_dimple, 'H')
+print(np.shape(P_H_dimple))
+
+
+# Output
+# Row 1: NC ,Nframes, NAME-OUTPUT1.TXT
+PA_1_output_row_1 = np.array([[h_num_calbody_c, h_num_calreadings_Frame, 'NAME-OUTPUT1.TXT']])
+
+# Row 2: Estimated post position with EM probe pivot calibration
+PA_1_output_row_2 = P_G_dimple.reshape(1,3)
+
+# Row 2: Estimated post position with optical probe pivot calibration
+PA_1_output_row_3 = P_H_dimple.reshape(1,3)
+
+# Rest of Rows: Coordinates of C_j expected in all dataframes
+PA_1_output_row_C_exp = C_vec_expected
+
+PA_1_output = np.concatenate((PA_1_output_row_1, PA_1_output_row_2, PA_1_output_row_3, C_vec_expected), axis = 0)
+
+# print(PA_1_output)
+# print(np.shape(PA_1_output))
+
+pd.DataFrame(PA_1_output).to_csv(r"C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\pa1_student_data\PA1 Student Output\PA1_output_a.csv")
