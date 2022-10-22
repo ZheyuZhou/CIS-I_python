@@ -42,8 +42,8 @@ import pandas as pd
 Name = np.array(['debug-a', 'debug-b', 'debug-c', 'debug-d', 'debug-e', 'debug-f', 'debug-g', 'unknown-h' , 'unknown-i', 'unknown-j', 'unknown-k'])
 name = ''
 for nm in Name:
-    print(nm)
-    name = nm
+    # print(nm)
+    # name = nm
 
     # h_calbody
     # Read from TXT
