@@ -368,3 +368,23 @@ for d in range(len(F_D)):
         C_vec_expected.append(C)
 # print(C_vec_expected, 'C_expected')
 # print(np.shape(C_vec_expected), 'C_expected shape')
+
+def ScaleToBox(x):
+    x_min = np.min(x)
+    x_max = np.max(x)
+    u = (x-x_min) / (x_max-x_min)
+    if u >= 0 and u <= 1:
+        return u
+    else:
+        print('u not in well functioning range!!!!')
+        return u
+
+def TensorForm(c, u):
+    N = len(c)
+    v = 1-u
+
+    
+
+
+# def distortion_correction():
+    
