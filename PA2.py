@@ -148,73 +148,116 @@ def Cloudregistration(a,A):
     return F 
 
 
-def ScaleToBox(q):
-    qT = q.T
-    qx = qT[0]
-    qy = qT[1]
-    qz = qT[2]
+def ScaleToBox(q_df):
+    q_df_T = q_df.T
+    q_df_x = q_df_T[0]
+    q_df_y = q_df_T[1]
+    q_df_z = q_df_T[2]
 
-    qx_min = np.min(qx)
-    qy_min = np.min(qy)
-    qz_min = np.min(qz)
+    q_df_x_min = np.min(q_df_x)
+    q_df_y_min = np.min(q_df_y)
+    q_df_z_min = np.min(q_df_z)
     
-    qx_max = np.max(qx)
-    qy_max = np.max(qy)
-    qz_max = np.max(qz)
+    q_df_x_max = np.max(q_df_x)
+    q_df_y_max = np.max(q_df_y)
+    q_df_z_max = np.max(q_df_z)
 
-    ux = (qx-qx_min) / (qx_max-qx_min)
-    uy = (qy-qy_min) / (qy_max-qy_min)
-    uz = (qz-qz_min) / (qz_max-qz_min)
+    ux = (q_df_x-q_df_x_min) / (q_df_x_max-q_df_x_min)
+    uy = (q_df_y-q_df_y_min) / (q_df_y_max-q_df_y_min)
+    uz = (q_df_z-q_df_z_min) / (q_df_z_max-q_df_z_min)
 
-    if ux >= 0 and ux <= 1 and uy >= 0 and uy <= 1 and uz >= 0 and uz <= 1:
-        u = np.array([ux, uy, uz])
-        return u
-    else:
-        print('u not in well functioning range!!!!')
-        u = np.array([ux, uy, uz])
-        return u
+    # print(np.shape(ux), ' shape ux')
+    # print(np.shape(uy), ' shape uy')
+    # print(np.shape(uz), ' shape uz')
 
+    # well_func_check = []
+    # for i in ux:
+    #     if i >= 0.0 and i <= 1.0:
+    #         for j in uy:
+    #             if j >= 0.0 and j <= 1.0:
+    #                 for k in uz:
+    #                     if k >= 0.0 and k <= 1.0:
+    #                         well_func_check.append(1)
+    #                     else:
+    #                         well_func_check.append(0)
+    #                         print('u not in well functioning range!!!!')
+    #             else:
+    #                 well_func_check.append(0)
+    #                 print('u not in well functioning range!!!!')
+    #     else:
+    #         well_func_check.append(0)
+    #         print('u not in well functioning range!!!!')
+    # well_func_check = np.array(well_func_check)
+    # if np.min(well_func_check) == 1:
+    #     u = np.array([ux, uy, uz])
+    # # print(np.shape(u), 'shape u')
 
-def B_5_Poly(q, k):
-    u = ScaleToBox(q)
+    u = np.array([ux, uy, uz])
+    return u
+
+def B_5_Poly(q_df, k):
+    u = ScaleToBox(q_df)
     v = 1 - u
     N = 5
     bionomial_coef = math.comb(N,k)
     B_N_k = bionomial_coef * u**(N-k) * v**(k)
+
+    # print(np.shape(B_N_k), ' shape B_N_k')
     return B_N_k
 
-def B_5_x_Poly(q,k):
-    B_N_k_x = B_5_Poly(q, k)[0]
+def B_5_x_Poly(q_df,k):
+    B_N_k_x = B_5_Poly(q_df, k)[0]
+    # print(np.shape(B_N_k_x), ' shape B_N_k_x')
     return B_N_k_x
 
-def B_5_y_Poly(q,k):
-    B_N_k_y = B_5_Poly(q, k)[1]
+def B_5_y_Poly(q_df,k):
+    B_N_k_y = B_5_Poly(q_df, k)[1]
+    # print(np.shape(B_N_k_y), ' shape B_N_k_y')
     return B_N_k_y
 
-def B_5_z_Poly(q,k):
-    B_N_k_z = B_5_Poly(q, k)[2]
+def B_5_z_Poly(q_df,k):
+    B_N_k_z = B_5_Poly(q_df, k)[2]
+    # print(np.shape(B_N_k_z), ' shape B_N_k_z')
     return B_N_k_z
 
-def Tensor_Form(q):
-    F = np.zeros(6,6,6)
-    for i in range(6):
-        for j in range(6):
-            for k in range(6):
-                B_N_i_x = B_5_x_Poly(q,i)
-                # B_N_i_y = B_5_y_Poly(q,i)
-                # B_N_i_z = B_5_z_Poly(q,i)
+def Tensor_Form(q_df):
+    # print(len(q_df), 'df_len')
+    df_len = len(q_df)
+    F = np.zeros((df_len,216))
+    F_row = np.zeros((6,6,6))
+    for u_i in range(df_len):
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
+                    B_N_i_x = B_5_x_Poly(q_df,i)[u_i]
+                    B_N_j_y = B_5_y_Poly(q_df,j)[u_i]
+                    B_N_j_z = B_5_z_Poly(q_df,j)[u_I]
+                    F_row[i],[j],[k] = B_N_i_x * B_N_j_y * B_N_j_z
+        F_row = np.ndarray.flatten(F_row)
+    
+                    
+    # F = np.zeros((6,6,6))
+    # for i in range(6):
+    #     for j in range(6):
+    #         for k in range(6):
+    #             # print(i, 'i')
+    #             B_N_i_x = B_5_x_Poly(q_df,i)[i]
+    #             # B_N_i_y = B_5_y_Poly(q,i)
+    #             # B_N_i_z = B_5_z_Poly(q,i)
 
-                # B_N_j_x = B_5_x_Poly(q,j)
-                B_N_j_y = B_5_y_Poly(q,j)
-                # B_N_j_z = B_5_z_Poly(q,j)
+    #             # print(j, 'j')
+    #             # B_N_j_x = B_5_x_Poly(q,j)
+    #             B_N_j_y = B_5_y_Poly(q_df,j)[j]
+    #             # B_N_j_z = B_5_z_Poly(q,j)
 
-                # B_N_j_x = B_5_x_Poly(q,j)
-                # B_N_j_y = B_5_y_Poly(q,j)
-                B_N_j_z = B_5_z_Poly(q,j)
+    #             # print(k, 'k')
+    #             # B_N_j_x = B_5_x_Poly(q,j)
+    #             # B_N_j_y = B_5_y_Poly(q,j)
+    #             B_N_j_z = B_5_z_Poly(q_df,j)[k]
 
-                F[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
-    F = np.ndarray.flatten(F)
-
+    #             F[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
+    # F = np.ndarray.flatten(F)
+       
     return F
 
 
@@ -401,7 +444,7 @@ for i in range (len(calreadings_D)):
 # print(len(calreadings_D), len(calbody_d))
 F_D = np.array([F_D])[0]
 # print(F_D)
-print(np.shape(F_D),' shape F_D')
+# print(np.shape(F_D),' shape F_D')
 
 # F_A transformation between calibration object and optical trackercoordinates through all data frames
 F_A = []
@@ -410,7 +453,7 @@ for j in range (len(calreadings_A)):
     # print('F_A')
 F_A = np.array([F_A])[0]
 # print(F_A)
-print(np.shape(F_A),' shape F_A')
+# print(np.shape(F_A),' shape F_A')
 
 # Calc C_vector expected for each data frame
 C_vec_expected = []
@@ -422,7 +465,7 @@ C_vec_expected_d = []
 c_I = np.ones((len(calbody_c), 1))
 # K. Lieret, Numpy.ones#, Numpy.ones - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ones.html (accessed October 13, 2022). 
 c = np.hstack((calbody_c,c_I))
-
+# C. Harris, Numpy.hstack#, Numpy.hstack - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.hstack.html (accessed October 12, 2022). 
 c_T = c.T
 # print(c)
 # print(np.shape(c))
@@ -438,5 +481,28 @@ for d in range(len(F_D)):
         C = C[0:3]
         C_vec_expected.append(C)
 # print(C_vec_expected, 'C_expected')
-print(np.shape(C_vec_expected), 'C_expected shape')
+# print(np.shape(C_vec_expected), 'C_expected shape')
 
+# print(np.shape(calreadings_C), ' shape calreadings_C')
+
+
+F_ijk = []
+for df_calreadings_C in calreadings_C:
+    F_row = Tensor_Form(df_calreadings_C)
+    # print(np.shape(F_row), ' shape F_row')
+
+    F_ijk.append(F_row)
+    # for q_ in df_calreadings_C:
+    #     q.append(q_)
+
+# print(np.shape(q), ' shape q')
+# F_row = Tensor_Form(q)
+# F_ijk.append(F_row)
+F_ijk = np.array(F_ijk)
+
+# print(F_ijk,' F_ijk')
+print(np.shape(F_ijk),' shape F_ijk')
+
+# Calculate the least square equation of the Cijk
+#LS_sol = np.linalg.lstsq()
+# I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
