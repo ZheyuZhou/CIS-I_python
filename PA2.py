@@ -32,6 +32,7 @@ import numpy as np
 import pandas as pd
 # W. McKinney, Pandas, Pandas. (2022). https://pandas.pydata.org/ (accessed October 12, 2022). 
 # from tqdm import tqdm_gui
+import math
 
 #######################################################################################
 #######################################################################################
@@ -369,19 +370,75 @@ for d in range(len(F_D)):
 # print(C_vec_expected, 'C_expected')
 # print(np.shape(C_vec_expected), 'C_expected shape')
 
-def ScaleToBox(x):
-    x_min = np.min(x)
-    x_max = np.max(x)
-    u = (x-x_min) / (x_max-x_min)
-    if u >= 0 and u <= 1:
+def ScaleToBox(q):
+    qT = q.T
+    qx = qT[0]
+    qy = qT[1]
+    qz = qT[2]
+
+    qx_min = np.min(qx)
+    qy_min = np.min(qy)
+    qz_min = np.min(qz)
+    
+    qx_max = np.max(qx)
+    qy_max = np.max(qy)
+    qz_max = np.max(qz)
+
+    ux = (qx-qx_min) / (qx_max-qx_min)
+    uy = (qy-qy_min) / (qy_max-qy_min)
+    uz = (qz-qz_min) / (qz_max-qz_min)
+
+    if ux >= 0 and ux <= 1 and uy >= 0 and uy <= 1 and uz >= 0 and uz <= 1:
+        u = np.array([ux, uy, uz])
         return u
     else:
         print('u not in well functioning range!!!!')
+        u = np.array([ux, uy, uz])
         return u
 
-def TensorForm(c, u):
-    N = len(c)
-    v = 1-u
+def B_5_Poly(q, k):
+    u = ScaleToBox(q)
+    v = 1 - u
+    N = 5
+    bionomial_coef = math.comb(N,k)
+    B_N_k = bionomial_coef * u**(N-k) * v**(k)
+    return B_N_k
+
+def B_5_x_Poly(q,k):
+    B_N_k_x = B_5_Poly(q, k)[0]
+    return B_N_k_x
+
+def B_5_y_Poly(q,k):
+    B_N_k_y = B_5_Poly(q, k)[1]
+    return B_N_k_y
+
+def B_5_z_Poly(q,k):
+    B_N_k_z = B_5_Poly(q, k)[2]
+    return B_N_k_z
+
+def Tensor_Form(q):
+    F = np.zeros(6,6,6)
+    for i in range(6):
+        for j in range(6):
+            for k in range(6):
+                B_N_i_x = B_5_x_Poly(q,i)
+                # B_N_i_y = B_5_y_Poly(q,i)
+                # B_N_i_z = B_5_z_Poly(q,i)
+
+                # B_N_j_x = B_5_x_Poly(q,j)
+                B_N_j_y = B_5_y_Poly(q,j)
+                # B_N_j_z = B_5_z_Poly(q,j)
+
+                # B_N_j_x = B_5_x_Poly(q,j)
+                # B_N_j_y = B_5_y_Poly(q,j)
+                B_N_j_z = B_5_z_Poly(q,j)
+
+                F[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
+    F = np.ndarray.flatten(F)
+
+    return F
+
+
 
     
 
