@@ -231,33 +231,11 @@ def Tensor_Form(q_df):
                 for k in range(6):
                     B_N_i_x = B_5_x_Poly(q_df,i)[u_i]
                     B_N_j_y = B_5_y_Poly(q_df,j)[u_i]
-                    B_N_j_z = B_5_z_Poly(q_df,j)[u_I]
-                    F_row[i],[j],[k] = B_N_i_x * B_N_j_y * B_N_j_z
-        F_row = np.ndarray.flatten(F_row)
-    
-                    
-    # F = np.zeros((6,6,6))
-    # for i in range(6):
-    #     for j in range(6):
-    #         for k in range(6):
-    #             # print(i, 'i')
-    #             B_N_i_x = B_5_x_Poly(q_df,i)[i]
-    #             # B_N_i_y = B_5_y_Poly(q,i)
-    #             # B_N_i_z = B_5_z_Poly(q,i)
+                    B_N_j_z = B_5_z_Poly(q_df,k)[u_i]
+                    F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
+        F_row_ = np.ndarray.flatten(F_row)
+        F[u_i] = F_row_
 
-    #             # print(j, 'j')
-    #             # B_N_j_x = B_5_x_Poly(q,j)
-    #             B_N_j_y = B_5_y_Poly(q_df,j)[j]
-    #             # B_N_j_z = B_5_z_Poly(q,j)
-
-    #             # print(k, 'k')
-    #             # B_N_j_x = B_5_x_Poly(q,j)
-    #             # B_N_j_y = B_5_y_Poly(q,j)
-    #             B_N_j_z = B_5_z_Poly(q_df,j)[k]
-
-    #             F[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
-    # F = np.ndarray.flatten(F)
-       
     return F
 
 
@@ -481,28 +459,24 @@ for d in range(len(F_D)):
         C = C[0:3]
         C_vec_expected.append(C)
 # print(C_vec_expected, 'C_expected')
-# print(np.shape(C_vec_expected), 'C_expected shape')
+print(np.shape(C_vec_expected), 'C_expected shape')
 
 # print(np.shape(calreadings_C), ' shape calreadings_C')
 
 
-F_ijk = []
+F_ijk = np.zeros((1,216))
 for df_calreadings_C in calreadings_C:
-    F_row = Tensor_Form(df_calreadings_C)
-    # print(np.shape(F_row), ' shape F_row')
+    F_df = Tensor_Form(df_calreadings_C)
+    F_ijk = np.vstack((F_ijk,F_df))
 
-    F_ijk.append(F_row)
-    # for q_ in df_calreadings_C:
-    #     q.append(q_)
-
-# print(np.shape(q), ' shape q')
-# F_row = Tensor_Form(q)
-# F_ijk.append(F_row)
-F_ijk = np.array(F_ijk)
+F_ijk = F_ijk[1:, :]
 
 # print(F_ijk,' F_ijk')
 print(np.shape(F_ijk),' shape F_ijk')
 
 # Calculate the least square equation of the Cijk
-#LS_sol = np.linalg.lstsq()
+c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
+print(np.shape(c_ijk), 'shape c_ijk')
 # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
+
+
