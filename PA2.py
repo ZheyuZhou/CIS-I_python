@@ -33,7 +33,7 @@ import pandas as pd
 # W. McKinney, Pandas, Pandas. (2022). https://pandas.pydata.org/ (accessed October 12, 2022). 
 # from tqdm import tqdm_gui
 import math
-
+# N. Samuel, Math - mathematical functions, Math - Mathematical Functions - Python 3.10.8 Documentation. (2022). https://docs.python.org/3/library/math.html (accessed October 26, 2022). 
 
 
 
@@ -200,6 +200,8 @@ def B_5_Poly(q_df, k):
     v = 1 - u
     N = 5
     bionomial_coef = math.comb(N,k)
+    # ihritik, Python - math.comb() method, GeeksforGeeks. (2020). https://www.geeksforgeeks.org/python-math-comb-method/ (accessed October 26, 2022). 
+    
     B_N_k = bionomial_coef * u**(N-k) * v**(k)
 
     # print(np.shape(B_N_k), ' shape B_N_k')
@@ -234,11 +236,16 @@ def Tensor_Form(q_df):
                     B_N_j_z = B_5_z_Poly(q_df,k)[u_i]
                     F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
         F_row_ = np.ndarray.flatten(F_row)
+        # S. Berg, Numpy.ndarray.flatten#, Numpy.ndarray.flatten - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flatten.html (accessed October 26, 2022). 
         F[u_i] = F_row_
 
     return F
 
-
+def CorrectDistortion(q_df):
+    corrected_p = 0
+    u = ScaleToBox(q_df)
+    
+    return corrected_p
 
 #######################################################################################
 #######################################################################################
@@ -476,7 +483,8 @@ print(np.shape(F_ijk),' shape F_ijk')
 
 # Calculate the least square equation of the Cijk
 c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
+print(c_ijk)
 print(np.shape(c_ijk), 'shape c_ijk')
 # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
 
-
+corrected_C = np.zeros((1,3))
