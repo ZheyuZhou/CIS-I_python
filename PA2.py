@@ -213,7 +213,7 @@ def Tensor_Form(q_total):
 
     return F
 
-def CorrectDistortion1(c_ijk,q_total):
+def Correct_Distortion(c_ijk,q_total):
     corrected_p = []
     df_len = len(q_total)
     for u_i in range(df_len):
@@ -465,5 +465,5 @@ print(c_ijk)
 print(np.shape(c_ijk), 'shape c_ijk')
 # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
 
-
+corrected_p = Correct_Distortion(c_ijk, q_total)
 
