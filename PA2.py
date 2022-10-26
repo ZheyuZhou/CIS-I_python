@@ -205,13 +205,27 @@ def Tensor_Form(q_total):
         for i,j,k in product(num_list, num_list, num_list):
             B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
             B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
-            B_N_j_z = B_5_z_Poly(q_total,k)[u_i]
-            F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
+            B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
+            F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_k_z
         F_row_ = np.ndarray.flatten(F_row)
         # S. Berg, Numpy.ndarray.flatten#, Numpy.ndarray.flatten - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flatten.html (accessed October 26, 2022). 
         F[u_i] = F_row_
 
     return F
+
+def CorrectDistortion1(c_ijk,q_total):
+    corrected_p = []
+    df_len = len(q_total)
+    for u_i in range(df_len):
+        for i in range(6):
+                for j in range(6):
+                    for k in range(6):
+                        order = 36*i+6*j+k
+                        B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
+                        B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
+                        B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
+                        corrected_p = corrected_p.append(c_ijk[order] * B_N_i_x * B_N_j_y * B_N_k_z)
+    return corrected_p
 
 
 #######################################################################################
@@ -452,42 +466,4 @@ print(np.shape(c_ijk), 'shape c_ijk')
 # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
 
 
-# q_total = np.zeros((1,3))
 
-# for df_calreadings_C in calreadings_C:
-#     q_total = np.vstack((q_total,df_calreadings_C))
-# q_total = q_total[1: , :]
-# # print(np.shape(q_total), ' shape q_total')
-
-# F_row_element = []
-# for q in q_total:
-#     for i in range (6):
-#         row_element = B_5_Poly(q_total, q, i)
-#         F_row_element.append(row_element)
-# F_row_element = np.array(F_row_element)
-
-# F_row_element = F_row_element.reshape(len(q_total), 6)
-# print(np.shape(F_row_element), ' shape F_row_element')
-
-# F = []
-# F_row = np.zeros((6,6,6))
-# for u_i in range(len(q_total)):
-#     # print(u_i, 'u_i')
-#     for i in range (6):
-#         for j in range(6):
-#             for k in range(6):
-#                 F_row[i][j][k] = F_row_element[u_i][i] * F_row_element[u_i][j] * F_row_element[u_i][k]
-#     F_row_ = np.ndarray.flatten(F_row)
-#     F.append(F_row_)
-
-# F_ijk = np.array(F)
-# # print(F_ijk,' F_ijk')
-# print(np.shape(F_ijk),' shape F_ijk')
-
-# # Calculate the least square equation of the Cijk
-# c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
-# print(c_ijk)
-# print(np.shape(c_ijk), 'shape c_ijk')
-# I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
-
-# corrected_C = np.zeros((1,3))
