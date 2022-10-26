@@ -34,7 +34,7 @@ import pandas as pd
 # from tqdm import tqdm_gui
 import math
 # N. Samuel, Math - mathematical functions, Math - Mathematical Functions - Python 3.10.8 Documentation. (2022). https://docs.python.org/3/library/math.html (accessed October 26, 2022). 
-
+from itertools import product
 
 
 #######################################################################################
@@ -148,55 +148,27 @@ def Cloudregistration(a,A):
     return F 
 
 
-def ScaleToBox(q_df):
-    q_df_T = q_df.T
-    q_df_x = q_df_T[0]
-    q_df_y = q_df_T[1]
-    q_df_z = q_df_T[2]
-
-    q_df_x_min = np.min(q_df_x)
-    q_df_y_min = np.min(q_df_y)
-    q_df_z_min = np.min(q_df_z)
+def ScaleToBox(q_total):
+    q_total_T = q_total.T
+    q_total_x = q_total_T[0]
+    q_total_y = q_total_T[1]
+    q_total_z = q_total_T[2]
+    q_total_x_min = np.min(q_total_x)
+    q_total_y_min = np.min(q_total_y)
+    q_total_z_min = np.min(q_total_z)
     
-    q_df_x_max = np.max(q_df_x)
-    q_df_y_max = np.max(q_df_y)
-    q_df_z_max = np.max(q_df_z)
+    q_total_x_max = np.max(q_total_x)
+    q_total_y_max = np.max(q_total_y)
+    q_total_z_max = np.max(q_total_z)
 
-    ux = (q_df_x-q_df_x_min) / (q_df_x_max-q_df_x_min)
-    uy = (q_df_y-q_df_y_min) / (q_df_y_max-q_df_y_min)
-    uz = (q_df_z-q_df_z_min) / (q_df_z_max-q_df_z_min)
-
-    # print(np.shape(ux), ' shape ux')
-    # print(np.shape(uy), ' shape uy')
-    # print(np.shape(uz), ' shape uz')
-
-    # well_func_check = []
-    # for i in ux:
-    #     if i >= 0.0 and i <= 1.0:
-    #         for j in uy:
-    #             if j >= 0.0 and j <= 1.0:
-    #                 for k in uz:
-    #                     if k >= 0.0 and k <= 1.0:
-    #                         well_func_check.append(1)
-    #                     else:
-    #                         well_func_check.append(0)
-    #                         print('u not in well functioning range!!!!')
-    #             else:
-    #                 well_func_check.append(0)
-    #                 print('u not in well functioning range!!!!')
-    #     else:
-    #         well_func_check.append(0)
-    #         print('u not in well functioning range!!!!')
-    # well_func_check = np.array(well_func_check)
-    # if np.min(well_func_check) == 1:
-    #     u = np.array([ux, uy, uz])
-    # # print(np.shape(u), 'shape u')
-
+    ux = (q_total_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
+    uy = (q_total_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
+    uz = (q_total_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
     u = np.array([ux, uy, uz])
     return u
 
-def B_5_Poly(q_df, k):
-    u = ScaleToBox(q_df)
+def B_5_Poly(q_total, k):
+    u = ScaleToBox(q_total)
     v = 1 - u
     N = 5
     bionomial_coef = math.comb(N,k)
@@ -207,45 +179,40 @@ def B_5_Poly(q_df, k):
     # print(np.shape(B_N_k), ' shape B_N_k')
     return B_N_k
 
-def B_5_x_Poly(q_df,k):
-    B_N_k_x = B_5_Poly(q_df, k)[0]
+def B_5_x_Poly(q_total,k):
+    B_N_k_x = B_5_Poly(q_total, k)[0]
     # print(np.shape(B_N_k_x), ' shape B_N_k_x')
     return B_N_k_x
 
-def B_5_y_Poly(q_df,k):
-    B_N_k_y = B_5_Poly(q_df, k)[1]
+def B_5_y_Poly(q_total,k):
+    B_N_k_y = B_5_Poly(q_total, k)[1]
     # print(np.shape(B_N_k_y), ' shape B_N_k_y')
     return B_N_k_y
 
-def B_5_z_Poly(q_df,k):
-    B_N_k_z = B_5_Poly(q_df, k)[2]
+def B_5_z_Poly(q_total,k):
+    B_N_k_z = B_5_Poly(q_total, k)[2]
     # print(np.shape(B_N_k_z), ' shape B_N_k_z')
     return B_N_k_z
 
-def Tensor_Form(q_df):
+def Tensor_Form(q_total):
     # print(len(q_df), 'df_len')
-    df_len = len(q_df)
+    df_len = len(q_total)
     F = np.zeros((df_len,216))
     F_row = np.zeros((6,6,6))
+    num_list = [0,1,2,3,4,5]
     for u_i in range(df_len):
-        for i in range(6):
-            for j in range(6):
-                for k in range(6):
-                    B_N_i_x = B_5_x_Poly(q_df,i)[u_i]
-                    B_N_j_y = B_5_y_Poly(q_df,j)[u_i]
-                    B_N_j_z = B_5_z_Poly(q_df,k)[u_i]
-                    F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
+        print(u_i, ' u_i')
+        for i,j,k in product(num_list, num_list, num_list):
+            B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
+            B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
+            B_N_j_z = B_5_z_Poly(q_total,k)[u_i]
+            F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_j_z
         F_row_ = np.ndarray.flatten(F_row)
         # S. Berg, Numpy.ndarray.flatten#, Numpy.ndarray.flatten - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flatten.html (accessed October 26, 2022). 
         F[u_i] = F_row_
 
     return F
 
-def CorrectDistortion(q_df):
-    corrected_p = 0
-    u = ScaleToBox(q_df)
-    
-    return corrected_p
 
 #######################################################################################
 #######################################################################################
@@ -466,20 +433,17 @@ for d in range(len(F_D)):
         C = C[0:3]
         C_vec_expected.append(C)
 # print(C_vec_expected, 'C_expected')
-print(np.shape(C_vec_expected), 'C_expected shape')
+# print(np.shape(C_vec_expected), 'C_expected shape')
 
 # print(np.shape(calreadings_C), ' shape calreadings_C')
 
+q_total = np.zeros((1,3))
 
-F_ijk = np.zeros((1,216))
 for df_calreadings_C in calreadings_C:
-    F_df = Tensor_Form(df_calreadings_C)
-    F_ijk = np.vstack((F_ijk,F_df))
+    q_total = np.vstack((q_total,df_calreadings_C))
+q_total = q_total[1: , :]
 
-F_ijk = F_ijk[1:, :]
-
-# print(F_ijk,' F_ijk')
-print(np.shape(F_ijk),' shape F_ijk')
+F_ijk = Tensor_Form(q_total)
 
 # Calculate the least square equation of the Cijk
 c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
@@ -487,4 +451,43 @@ print(c_ijk)
 print(np.shape(c_ijk), 'shape c_ijk')
 # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
 
-corrected_C = np.zeros((1,3))
+
+# q_total = np.zeros((1,3))
+
+# for df_calreadings_C in calreadings_C:
+#     q_total = np.vstack((q_total,df_calreadings_C))
+# q_total = q_total[1: , :]
+# # print(np.shape(q_total), ' shape q_total')
+
+# F_row_element = []
+# for q in q_total:
+#     for i in range (6):
+#         row_element = B_5_Poly(q_total, q, i)
+#         F_row_element.append(row_element)
+# F_row_element = np.array(F_row_element)
+
+# F_row_element = F_row_element.reshape(len(q_total), 6)
+# print(np.shape(F_row_element), ' shape F_row_element')
+
+# F = []
+# F_row = np.zeros((6,6,6))
+# for u_i in range(len(q_total)):
+#     # print(u_i, 'u_i')
+#     for i in range (6):
+#         for j in range(6):
+#             for k in range(6):
+#                 F_row[i][j][k] = F_row_element[u_i][i] * F_row_element[u_i][j] * F_row_element[u_i][k]
+#     F_row_ = np.ndarray.flatten(F_row)
+#     F.append(F_row_)
+
+# F_ijk = np.array(F)
+# # print(F_ijk,' F_ijk')
+# print(np.shape(F_ijk),' shape F_ijk')
+
+# # Calculate the least square equation of the Cijk
+# c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
+# print(c_ijk)
+# print(np.shape(c_ijk), 'shape c_ijk')
+# I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
+
+# corrected_C = np.zeros((1,3))
