@@ -201,7 +201,7 @@ def Tensor_Form(q_total):
     F_row = np.zeros((6,6,6))
     num_list = [0,1,2,3,4,5]
     for u_i in range(df_len):
-        print(u_i, ' u_i')
+        # print(u_i, ' u_i')
         for i,j,k in product(num_list, num_list, num_list):
             B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
             B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
@@ -217,6 +217,7 @@ def Correct_Distortion(c_ijk,q_total):
     corrected_p = []
     df_len = len(q_total)
     for u_i in range(df_len):
+        print(u_i, ' u_i')
         for i in range(6):
                 for j in range(6):
                     for k in range(6):
@@ -461,9 +462,11 @@ F_ijk = Tensor_Form(q_total)
 
 # Calculate the least square equation of the Cijk
 c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
-print(c_ijk)
-print(np.shape(c_ijk), 'shape c_ijk')
+# print(c_ijk)
+# print(np.shape(c_ijk), 'shape c_ijk')
 # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
 
 corrected_p = Correct_Distortion(c_ijk, q_total)
 
+print(corrected_p)
+print(np.shape(corrected_p), 'shape corrected_p')
