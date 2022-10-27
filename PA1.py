@@ -391,6 +391,7 @@ for nm in Name:
         F_D_opt.append(Cloudregistration(h_calbody_d,h_caloptpivot_D[i]))
     F_D_opt = np.array([F_D_opt])[0]
 
+    print(np.shape(h_caloptpivot_H), 'shape h_caloptpivot_H')
     P_H_dimple, t_H, F_H, h_j = Point_Calibration(h_caloptpivot_H, h_num_caloptpivot_Frame)
 
     F_D_opt_inv = np.linalg.inv(F_D_opt)

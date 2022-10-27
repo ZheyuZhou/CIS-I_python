@@ -204,8 +204,9 @@ def Tensor_Form(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q):
         for i in range(6):
             B_5_k_Poly.append(B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, P, i))
     B_5_k_Poly = np.array(B_5_k_Poly)
+    print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly before reshape')
     B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
-
+    print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
     F_ijk = np.zeros((216))
     for B_5_k in B_5_k_Poly:
         F_row = []
@@ -223,42 +224,52 @@ def c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, C_vec_expe
     # print(np.shape(em_q), ' shape em_q in c_ijk_lstsq')
     P_F_ijk = Tensor_Form(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q)
     # print(np.shape(em_q), ' shape em_q in c_ijk_lstsq after P_F_ijk')
-    P_c_ijk = np.linalg.lstsq(P_F_ijk,C_vec_expected_2D, rcond=None)[0]
+    print(np.shape(P_F_ijk), ' shape P_F_ijk')
+    print(np.shape(C_vec_expected_2D), ' shape C_vec_expected_2D')
+    c_ijk = np.linalg.lstsq(P_F_ijk,C_vec_expected_2D, rcond=None)[0]
 
     # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
-    return P_c_ijk
+    return c_ijk
 
-def Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, C_vec_expected_2D):
-    # print(np.shape(em_q), ' shape em_q in Correct_Distortion')
-    c_ijk = c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, C_vec_expected_2D)
-    # print(np.shape(em_q), ' shape em_q in Correct_Distortion after c_ijk')
-    P_total = np.zeros((1,3))
-    for df_rd_P in em_q:
-        P_total = np.vstack((P_total,df_rd_P))
-    P_total = P_total[1: , :]
+def Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, c_ijk):
+    P_F_ijk = Tensor_Form(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q)
+    print(np.shape(P_F_ijk), ' shape P_F_ijk in Corrected_Distortion')
+    print(np.shape(c_ijk), ' shape c_ijk in Corrected_Distortion')
 
-    B_5_k_Poly = []
-    for P in em_q:
-        for i in range(6):
-            B_5_k_Poly.append(B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, P, i))
-    B_5_k_Poly = np.array(B_5_k_Poly)
-    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
-
-    corrected_P = []
-    for B_5_k in B_5_k_Poly:
-        corrected_P_row = np.zeros((3))
-        for i in range(6):
-            for j in range(6):
-                for k in range(6):
-                    order = 36*i+6*j+k
-                    # print(np.shape(c_ijk[order]), ' shape cijk order')
-                    corrected_P_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
-        corrected_P_row = np.array(corrected_P_row)
-        # print(np.shape(corrected_P_row), 'shape corrected_P_row')
-        corrected_P.append(corrected_P_row)
-    corrected_P = np.array(corrected_P)
-
+    corrected_P = P_F_ijk@c_ijk
     return corrected_P
+    # print(np.shape(em_q), ' shape em_q in Correct_Distortion')
+    # c_ijk = c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, C_vec_expected_2D)
+    # print(np.shape(em_q), ' shape em_q in Correct_Distortion after c_ijk')
+    # P_total = np.zeros((1,3))
+    # for df_rd_P in em_q:
+    #     P_total = np.vstack((P_total,df_rd_P))
+    # P_total = P_total[1: , :]
+
+
+
+    # B_5_k_Poly = []
+    # for P in em_q:
+    #     for i in range(6):
+    #         B_5_k_Poly.append(B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, P, i))
+    # B_5_k_Poly = np.array(B_5_k_Poly)
+    # B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
+    # print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
+
+    # corrected_P = []
+    # for B_5_k in B_5_k_Poly:
+    #     corrected_P_row = np.zeros((3))
+    #     for i in range(6):
+    #         for j in range(6):
+    #             for k in range(6):
+    #                 order = 36*i+6*j+k
+    #                 # print(np.shape(c_ijk[order]), ' shape cijk order')
+    #                 corrected_P_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
+    #     corrected_P_row = np.array(corrected_P_row)
+    #     # print(np.shape(corrected_P_row), 'shape corrected_P_row')
+    #     corrected_P.append(corrected_P_row)
+    # corrected_P = np.array(corrected_P)
+
 
 # def Scale_To_Box(q_total, q_c):
 #     q_total_T = q_total.T
@@ -403,7 +414,7 @@ def LeastSquare(F):
         # print(Coeff_Matrix)
         # print(np.shape(Coeff_Matrix))
         # Calc t_G and P_dimple with least square
-        LS_sol = np.linalg.lstsq(Coeff_Matrix, -p)[0]
+        LS_sol = np.linalg.lstsq(Coeff_Matrix, -p, rcond=None)[0]
         # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
         t_G = LS_sol[0:3]
         P_dimple = LS_sol[3:6]
@@ -715,23 +726,35 @@ C_vec_expected_2D = C_vec_expected_flat.reshape(int(len(C_vec_expected_flat)/3),
 print(np.shape(C_vec_expected_2D), ' shape C_vec_expected_2D')
 calreadings_C_2D = calreadings_C_flat.reshape(int(len(calreadings_C_flat)/3), 3)
 print(np.shape(calreadings_C_2D), ' shape calreadings_C_2D')
+calempivot_G_2D = calempivot_G_flat.reshape(int(len(calempivot_G_flat)/3), 3)
+print(np.shape(calempivot_G_2D), ' shape calempivot_G_2D')
+em_fiducials_G_2D = em_fiducials_G_flat.reshape(int(len(em_fiducials_G_flat)/3), 3)
+print(np.shape(em_fiducials_G_2D), ' shape em_fiducials_G_2D')
+em_nav_G_2D = em_nav_G_flat.reshape(int(len(em_nav_G_flat)/3), 3)
+print(np.shape(em_nav_G_2D), ' shape em_nav_G_2D')
 
+# Calculate c_ijk
+c_ijk = c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calreadings_C_2D, C_vec_expected_2D)
 
 # Calculate the corrected of C
-corrected_C = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calreadings_C_2D, C_vec_expected_2D)
-print(corrected_C[3370], 'corrected_C')
-print(C_vec_expected_2D[3370], 'C_expected_2D')
-print(np.shape(corrected_C), 'shape corrected_C')
-print(np.shape(C_vec_expected_2D), 'C_vec_expected_2D')
+corrected_C = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calreadings_C_2D, c_ijk)
+# print(corrected_C[330], 'corrected_C')
+# print(C_vec_expected_2D[330], 'C_expected_2D')
+# print(np.shape(corrected_C), 'shape corrected_C')
+# print(np.shape(C_vec_expected_2D), 'C_vec_expected_2D')
 
 #EM Caliberation with distortion correct data
-# corrected_G = Correct_Distortion(calempivot_G, calreadings_C, C_vec_expected)
-# print(np.shape(corrected_G), 'shape corrected_G')
-# P_G_dimple, t_G, F_G, g_j = Point_Calibration(corrected_G, num_calempivot_Frame)
+corrected_G = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calempivot_G_2D, c_ijk)
+print(np.shape(corrected_G), 'shape corrected_G')
+corrected_G_3D = corrected_G.reshape((num_calempivot_Frame, int(len(corrected_G)/num_calempivot_Frame), 3))
+print(np.shape(corrected_G_3D), 'shape corrected_G_3D')
+P_G_dimple, t_G, F_G, g_j = Point_Calibration(corrected_G_3D, num_calempivot_Frame)
+
 
 #Correct distortion of the em fiducials.
-#correct_J = Correct_Distortion(em_fiducials_G, calreadings_C, C_vec_expected)
-#Fj = Framecalcuation(correct_J,num_em_fiducials_B)
+corrected_J = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_fiducials_G_2D, c_ijk)
+corrected_J_3D = corrected_J.reshape((num_em_fiducials_G, int(len(corrected_J)/num_em_fiducials_G), 3))
+Fj = Framecalcuation(corrected_J_3D,num_em_fiducials_B)
 #Compute the locations b_j of the fiducials points:
 #b_j = []
 #for i in num_em_fiducials_B:
