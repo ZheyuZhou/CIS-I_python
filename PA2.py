@@ -635,3 +635,11 @@ for nm in Name:
     pd.DataFrame(PA_2_output1).to_csv('pa2_student_data\Output\PA1_'+nm+'_output1.csv')
 
     # Output 2
+    # Row1: Nframes, NAME-OUTPUT2.TXT
+    PA_2_output2_row_1 = np.array([[num_em_nav_Frame, 'PA2_' + nm + '-OUTPUT2.TXT','NaN' ]])
+
+    # Rest of Rows Coordinates of , the probe tip position in CTcoordinates of each dataframe
+    PA_2_output2_row_b = b_N_i
+
+    PA_2_output2  = np.vstack((PA_2_output2_row_1, PA_2_output2_row_b))
+    pd.DataFrame(PA_2_output2).to_csv('pa2_student_data\Output\PA1_'+nm+'_output2.csv')
