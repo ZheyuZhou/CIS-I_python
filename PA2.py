@@ -632,7 +632,7 @@ for nm in Name:
     PA_2_output1_row_C_exp = C_vec_expected[0]
     print(np.shape(C_vec_expected), 'shape C_vec_expected')
     PA_2_output1 = np.vstack((PA_2_output1_row_1, PA_2_output1_row_2, PA_2_output1_row_3, PA_2_output1_row_C_exp))
-    pd.DataFrame(PA_2_output1).to_csv('pa2_student_data\Output\PA1_'+nm+'_output1.csv')
+    pd.DataFrame(PA_2_output1).to_csv('pa2_student_data\Output\PA2_'+nm+'_output1.csv')
 
     # Output 2
     # Row1: Nframes, NAME-OUTPUT2.TXT
@@ -642,4 +642,4 @@ for nm in Name:
     PA_2_output2_row_b = b_N_i
 
     PA_2_output2  = np.vstack((PA_2_output2_row_1, PA_2_output2_row_b))
-    pd.DataFrame(PA_2_output2).to_csv('pa2_student_data\Output\PA1_'+nm+'_output2.csv')
+    pd.DataFrame(PA_2_output2).to_csv('pa2_student_data\Output\PA2_'+nm+'_output2.csv')
