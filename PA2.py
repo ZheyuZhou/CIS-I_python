@@ -36,6 +36,8 @@ import math
 # N. Samuel, Math - mathematical functions, Math - Mathematical Functions - Python 3.10.8 Documentation. (2022). https://docs.python.org/3/library/math.html (accessed October 26, 2022). 
 from itertools import product
 
+from torch import q_zero_point
+
 
 #######################################################################################
 #######################################################################################
@@ -151,131 +153,49 @@ def Cloudregistration(a,A):
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
-def Scale_To_Box(q_total, q_c):
-    q_total_T = q_total.T
-    q_total_x = q_total_T[0]
-    q_total_y = q_total_T[1]
-    q_total_z = q_total_T[2]
-    q_total_x_min = np.min(q_total_x)
-    q_total_y_min = np.min(q_total_y)
-    q_total_z_min = np.min(q_total_z)
-    
-    q_total_x_max = np.max(q_total_x)
-    q_total_y_max = np.max(q_total_y)
-    q_total_z_max = np.max(q_total_z)
+def Find_min_max(em_all):
+    em_all_x = em_all.T[0]
+    em_all_y = em_all.T[1]
+    em_all_z = em_all.T[2]
 
-    q_c_T = q_c.T
-    q_c_x = q_c_T[0]
-    q_c_y = q_c_T[1]
-    q_c_z = q_c_T[2]
+    qmin_x = np.min(em_all_x)
+    qmin_y = np.min(em_all_y)
+    qmin_z = np.min(em_all_z)
 
-    ux = (q_c_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
-    uy = (q_c_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
-    uz = (q_c_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
-    u = np.array([ux, uy, uz])
-    return u
+    qmax_x = np.max(em_all_x)
+    qmax_y = np.max(em_all_y)
+    qmax_z = np.max(em_all_z)
 
-def B_5_Poly(q_total, q_c, k):
-    u = Scale_To_Box(q_total, q_c)
+    return qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z
+
+def Scale_To_Box(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, q):
+    q_x = q[0]
+    q_y = q[1]
+    q_z = q[2]
+
+    u_x = (q_x - qmin_x) / (qmax_x - qmin_x)
+    u_y = (q_y - qmin_y) / (qmax_y - qmin_y)
+    u_z = (q_z - qmin_z) / (qmax_z - qmin_z)
+
+    u = np.array([u_x, u_y, u_z])
+    return(u)
+
+def B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, q, k):
+    u = Scale_To_Box(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, q)
     v = 1 - u
     N = 5
 
     bionomial_coef = math.comb(N,k)
-    # ihritik, Python - math.comb() method, GeeksforGeeks. (2020). https://www.geeksforgeeks.org/python-math-comb-method/ (accessed October 26, 2022). 
-    
+
     B_5_k = bionomial_coef * u**(N-k) * v**(k)
 
-    # print(np.shape(B_5_k), ' shape B_5_k')
+    print(np.shape(B_5_k), ' shape B_5_k')
     return B_5_k
 
-def Tensor_Form(rd_P, rd_C):
-    P_total = np.zeros((1,3))
-    for df_rd_P in rd_P:
-        P_total = np.vstack((P_total,df_rd_P))
-    P_total = P_total[1: , :]
-
-    B_5_k_Poly = []
-    for df_rd_C in rd_C:
-        for C in df_rd_C:
-            for i in range(6):
-                B_5_k_Poly.append(B_5_Poly(P_total, C, i))
-    B_5_k_Poly = np.array(B_5_k_Poly)
-    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
-
-    F_ijk = np.zeros((216))
-    for B_5_k in B_5_k_Poly:
-        F_row = []
-        for i in range(6):
-            for j in range(6):
-                for k in range(6):
-                    F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
-        F_row = np.array(F_row)
-        # print(np.shape(F_row), ' shape F_row')
-        F_ijk = np.vstack((F_ijk,F_row))
-    F_ijk = F_ijk[1:, :]
-    return F_ijk
-
-def c_ijk_lstsq(rd_P, rd_C, C_vec_expected):
-    P_F_ijk = Tensor_Form(rd_P, rd_C)
-    P_c_ijk = np.linalg.lstsq(P_F_ijk,C_vec_expected, rcond=None)[0]
-    # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
-    return P_c_ijk
-
-def Correct_Distortion(rd_P,rd_C, C_vec_expected):
-    c_ijk = c_ijk_lstsq(rd_P, rd_C, C_vec_expected)
-    P_total = np.zeros((1,3))
-    for df_rd_P in rd_P:
-        P_total = np.vstack((P_total,df_rd_P))
-    P_total = P_total[1: , :]
-
-    B_5_k_Poly = []
-    for df_rd_C in rd_C:
-        for C in df_rd_C:
-            for i in range(6):
-                B_5_k_Poly.append(B_5_Poly(P_total, C, i))
-    B_5_k_Poly = np.array(B_5_k_Poly)
-    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
-
-    corrected_P = []
-    for B_5_k in B_5_k_Poly:
-        corrected_P_row = np.zeros((3))
-        for i in range(6):
-            for j in range(6):
-                for k in range(6):
-                    order = 36*i+6*j+k
-                    # print(np.shape(c_ijk[order]), ' shape cijk order')
-                    corrected_P_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
-        corrected_P_row = np.array(corrected_P_row)
-        # print(np.shape(corrected_P_row), 'shape corrected_P_row')
-        corrected_P.append(corrected_P_row)
-    corrected_P = np.array(corrected_P)
-
-    return corrected_P
-#  def Correct_Distortion(c_ijk,rd_P):
-#     P_total = np.zeros((1,3))
-#     for df_rd_P in rd_P:
-#         P_total = np.vstack((P_total,df_rd_P))
-#     P_total = P_total[1: , :]
-
-#     B_5_k_Poly = []
-#     for df_rd_P in rd_P:
-#         for p in df_rd_P:
-#             for i in range(6):
-#                 B_5_k_Poly.append(B_5_Poly(P_total, p, i))
-#     B_5_k_Poly = np.array(B_5_k_Poly)
-#     B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
-
-    
-#     return corrected_P
+def Tensor_Form()
 
 
-######################################################################################################
-######################################################################################################
-######################################################################################################
-######################################################################################################
-######################################################################################################
-
-# def ScaleToBox(q_total):
+# def Scale_To_Box(q_total, q_c):
 #     q_total_T = q_total.T
 #     q_total_x = q_total_T[0]
 #     q_total_y = q_total_T[1]
@@ -287,74 +207,200 @@ def Correct_Distortion(rd_P,rd_C, C_vec_expected):
 #     q_total_x_max = np.max(q_total_x)
 #     q_total_y_max = np.max(q_total_y)
 #     q_total_z_max = np.max(q_total_z)
+    
+#     q_c_T = q_c.T
+#     q_c_x = q_c_T[0]
+#     q_c_y = q_c_T[1]
+#     q_c_z = q_c_T[2]
 
-#     ux = (q_total_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
-#     uy = (q_total_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
-#     uz = (q_total_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
+#     ux = (q_c_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
+#     uy = (q_c_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
+#     uz = (q_c_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
 #     u = np.array([ux, uy, uz])
 #     return u
 
-# def B_5_Poly(q_total, k):
-#     u = ScaleToBox(q_total)
+# def B_5_Poly(q_total, q_c, k):
+#     u = Scale_To_Box(q_total, q_c)
 #     v = 1 - u
 #     N = 5
+
 #     bionomial_coef = math.comb(N,k)
 #     # ihritik, Python - math.comb() method, GeeksforGeeks. (2020). https://www.geeksforgeeks.org/python-math-comb-method/ (accessed October 26, 2022). 
     
-#     B_N_k = bionomial_coef * u**(N-k) * v**(k)
+#     B_5_k = bionomial_coef * u**(N-k) * v**(k)
 
-#     # print(np.shape(B_N_k), ' shape B_N_k')
-#     return B_N_k
+#     # print(np.shape(B_5_k), ' shape B_5_k')
+#     return B_5_k
 
-# def B_5_x_Poly(q_total,k):
-#     B_N_k_x = B_5_Poly(q_total, k)[0]
-#     # print(np.shape(B_N_k_x), ' shape B_N_k_x')
-#     return B_N_k_x
+# def Tensor_Form(rd_P, rd_C):
+#     P_total = np.zeros((1,3))
+#     for df_rd_P in rd_P:
+#         P_total = np.vstack((P_total,df_rd_P))
+#     P_total = P_total[1: , :]
 
-# def B_5_y_Poly(q_total,k):
-#     B_N_k_y = B_5_Poly(q_total, k)[1]
-#     # print(np.shape(B_N_k_y), ' shape B_N_k_y')
-#     return B_N_k_y
+#     C_total = np.zeros((1,3))
+#     for df_rd_C in rd_C:
+#         C_total = np.vstack((C_total,df_rd_C))
+#     C_total = C_total[1: , :]
 
-# def B_5_z_Poly(q_total,k):
-#     B_N_k_z = B_5_Poly(q_total, k)[2]
-#     # print(np.shape(B_N_k_z), ' shape B_N_k_z')
-#     return B_N_k_z
+#     B_5_k_Poly = []
+#     for df_rd_C in rd_C:
+#         for C in df_rd_C:
+#             for i in range(6):
+#                 B_5_k_Poly.append(B_5_Poly(P_total, C, i))
+#     B_5_k_Poly = np.array(B_5_k_Poly)
+#     B_5_k_Poly = B_5_k_Poly.reshape((len(C_total), 6, 3))
 
-# def Tensor_Form(q_total):
-#     # print(len(q_df), 'df_len')
-#     df_len = len(q_total)
-#     F = np.zeros((df_len,216))
-#     F_row = np.zeros((6,6,6))
-#     num_list = [0,1,2,3,4,5]
-#     for u_i in range(df_len):
-#         # print(u_i, ' u_i')
-#         for i,j,k in product(num_list, num_list, num_list):
-#             B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
-#             B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
-#             B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
-#             F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_k_z
-#         F_row_ = np.ndarray.flatten(F_row)
-#         # S. Berg, Numpy.ndarray.flatten#, Numpy.ndarray.flatten - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flatten.html (accessed October 26, 2022). 
-#         F[u_i] = F_row_
-
-#     return F
-
-# def Correct_Distortion(c_ijk,q_total):
-#     corrected_p = []
-#     df_len = len(q_total)
-#     for u_i in range(df_len):
-#         print(u_i, ' u_i')
+#     F_ijk = np.zeros((216))
+#     for B_5_k in B_5_k_Poly:
+#         F_row = []
 #         for i in range(6):
-#                 for j in range(6):
-#                     for k in range(6):
-#                         order = 36*i+6*j+k
-#                         B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
-#                         B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
-#                         B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
-#                         corrected_p.append(c_ijk[order] * B_N_i_x * B_N_j_y * B_N_k_z)
-#     corrected_p = np.array([corrected_p])
-#     return corrected_p
+#             for j in range(6):
+#                 for k in range(6):
+#                     F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
+#         F_row = np.array(F_row)
+#         # print(np.shape(F_row), ' shape F_row')
+#         F_ijk = np.vstack((F_ijk,F_row))
+#     F_ijk = F_ijk[1:, :]
+#     return F_ijk
+
+# def c_ijk_lstsq(rd_P, rd_C, C_vec_expected):
+#     P_F_ijk = Tensor_Form(rd_P, rd_C)
+#     P_c_ijk = np.linalg.lstsq(P_F_ijk,C_vec_expected, rcond=None)[0]
+#     # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
+#     return P_c_ijk
+
+# def Correct_Distortion(rd_P,rd_C, C_vec_expected):
+#     c_ijk = c_ijk_lstsq(rd_P, rd_C, C_vec_expected)
+#     P_total = np.zeros((1,3))
+#     for df_rd_P in rd_P:
+#         P_total = np.vstack((P_total,df_rd_P))
+#     P_total = P_total[1: , :]
+
+#     C_total = np.zeros((1,3))
+#     for df_rd_C in rd_C:
+#         C_total = np.vstack((C_total,df_rd_C))
+#     C_total = C_total[1: , :]
+
+#     B_5_k_Poly = []
+#     for df_rd_C in rd_C:
+#         for C in df_rd_C:
+#             for i in range(6):
+#                 B_5_k_Poly.append(B_5_Poly(P_total, C, i))
+#     B_5_k_Poly = np.array(B_5_k_Poly)
+#     B_5_k_Poly = B_5_k_Poly.reshape((len(C_total), 6, 3))
+
+#     corrected_P = []
+#     for B_5_k in B_5_k_Poly:
+#         corrected_P_row = np.zeros((3))
+#         for i in range(6):
+#             for j in range(6):
+#                 for k in range(6):
+#                     order = 36*i+6*j+k
+#                     # print(np.shape(c_ijk[order]), ' shape cijk order')
+#                     corrected_P_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
+#         corrected_P_row = np.array(corrected_P_row)
+#         # print(np.shape(corrected_P_row), 'shape corrected_P_row')
+#         corrected_P.append(corrected_P_row)
+#     corrected_P = np.array(corrected_P)
+
+#     return corrected_P
+
+################################################################################################################################################
+################################################################################################################################################
+################################################################################################################################################
+################################################################################################################################################
+################################################################################################################################################
+
+def LeastSquare(F):
+        R = np.array([[0,0,0]])
+        p = np.array([[0]])
+        neg_I = np.array([[0,0,0]])
+        for F_j in F:
+            # Slice R and p out of F
+            R_j = F_j[0:3 , 0:3]
+            p_j = F_j[0:3, 3:4]
+
+            neg_I_j = -np.eye(3)
+
+            R = np.concatenate((R,R_j),axis=0)
+            # I. Polat, Numpy.linalg.eig#, Numpy.linalg.eig - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.eig.html (accessed October 12, 2022). 
+            p = np.concatenate((p,p_j),axis=0)
+            neg_I = np.concatenate((neg_I,neg_I_j),axis=0)
+
+        # Slice out the 0,0,0 on first row for R, p, neg_I
+        R = R[1:, :]
+        p = p[1:, :]
+        neg_I = neg_I[1:, :]
+        
+        Coeff_Matrix = np.concatenate((R,neg_I),axis=1)
+
+        # print(Coeff_Matrix)
+        # print(np.shape(Coeff_Matrix))
+        # Calc t_G and P_dimple with least square
+        LS_sol = np.linalg.lstsq(Coeff_Matrix, -p)[0]
+        # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
+        t_G = LS_sol[0:3]
+        P_dimple = LS_sol[3:6]
+
+        return P_dimple, t_G
+
+def Point_Calibration(calpivot, num_calpivot_Frame):
+        # points in first data frame
+        P_1 = calpivot[0]
+
+        # points' average in first data frame
+        P_1_0 = np.mean(P_1, axis=0)
+
+        # Calc p_j differences between points and points average
+        p_j = []
+        for P_j in P_1:
+            p_j.append(P_j - P_1_0)
+        p_j = np.array(p_j)
+
+        # Calc F_P Transformation between EM coordinate to pointer
+        F_P = []
+        for j in range (num_calpivot_Frame):
+            # EM points from each data frame
+            P_EM = calpivot[j]
+        
+            # calculate EM marker Point Cloud Transformation 
+            # Store all the matrices
+            F_P.append(Cloudregistration(p_j, P_EM))
+            
+        F_P = np.array(F_P)
+
+        P_dimple = LeastSquare(F_P)[0]
+        t_p = LeastSquare(F_P)[1]
+
+        return P_dimple, t_p, F_P, p_j
+
+def Framecalcuation(calpivot, num_calpivot_Frame):
+        # points in first data frame
+        P_1 = calpivot[0]
+
+        # points' average in first data frame
+        P_1_0 = np.mean(P_1, axis=0)
+
+        # Calc p_j differences between points and points average
+        p_j = []
+        for P_j in P_1:
+            p_j.append(P_j - P_1_0)
+        p_j = np.array(p_j)
+
+        # Calc F_P Transformation between EM coordinate to pointer
+        F_P = []
+        for j in range (num_calpivot_Frame):
+            # EM points from each data frame
+            P_EM = calpivot[j]
+        
+            # calculate EM marker Point Cloud Transformation 
+            # Store all the matrices
+            F_P.append(Cloudregistration(p_j, P_EM))
+
+        F_P = np.array(F_P)
+
+        return F_P
 
 
 #######################################################################################
@@ -575,21 +621,65 @@ for d in range(len(F_D)):
         # I. Polat, Numpy.linalg.inv#, Numpy.linalg.inv - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.inv.html (accessed October 13, 2022). 
         C = C[0:3]
         C_vec_expected.append(C)
-# print(C_vec_expected, 'C_expected')
-# print(np.shape(C_vec_expected), 'C_expected shape')
 
-# print(np.shape(calreadings_C), ' shape calreadings_C')
+
+# Get qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z for all EM readings
+C_vec_expected = np.array([C_vec_expected])
+# print(C_vec_expected, 'C_expected')
+print(np.shape(C_vec_expected), 'C_expected shape')
+print(np.shape(calreadings_C), ' shape calreadings_C')
+print(np.shape(calempivot_G), 'shape calempivot_G')
+print(np.shape(em_fiducials_G), ' shape em_fiducials_G')
+print(np.shape(em_nav_G), 'shape em_nav_G')
+
+C_vec_expected_flat = np.ndarray.flatten(C_vec_expected)
+calreadings_C_flat = np.ndarray.flatten(calreadings_C)
+calempivot_G_flat = np.ndarray.flatten(calempivot_G)
+em_fiducials_G_flat = np.ndarray.flatten(em_fiducials_G)
+em_nav_G_flat = np.ndarray.flatten(em_nav_G)
+
+em_all = np.hstack((C_vec_expected_flat, calreadings_C_flat, calempivot_G_flat, em_fiducials_G_flat, em_nav_G_flat))
+# print(np.shape(em_all), ' shape em_all')
+em_all = em_all.reshape(int(len(em_all)/3), 3)
+# print(np.shape(em_all), ' shape em_all')
+
+qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z = Find_min_max(em_all)
+
+
 
 
 # Calculate the corrected of C
-corrected_C = Correct_Distortion(calreadings_C, calreadings_C, C_vec_expected)
-print(corrected_C[3370])
-print(C_vec_expected[3370], 'C_expected')
-print(np.shape(corrected_C), 'shape corrected_C')
-print(np.shape(C_vec_expected), 'C_vec_expected')
+# corrected_C = Correct_Distortion(calreadings_C, calreadings_C, C_vec_expected)
+# print(corrected_C[3370])
+# print(C_vec_expected[3370], 'C_expected')
+# print(np.shape(corrected_C), 'shape corrected_C')
+# print(np.shape(C_vec_expected), 'C_vec_expected')
 
+#EM Caliberation with distortion correct data
+# corrected_G = Correct_Distortion(calempivot_G, calreadings_C, C_vec_expected)
+# print(np.shape(corrected_G), 'shape corrected_G')
+# P_G_dimple, t_G, F_G, g_j = Point_Calibration(corrected_G, num_calempivot_Frame)
 
-# G_F_ijk = Tensor_Form(calempivot_G)
-# # print(np.shape(calempivot_G), ' shape calempivot_G')
-# C_c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
+#Correct distortion of the em fiducials.
+#correct_J = Correct_Distortion(em_fiducials_G, calreadings_C, C_vec_expected)
+#Fj = Framecalcuation(correct_J,num_em_fiducials_B)
+#Compute the locations b_j of the fiducials points:
+#b_j = []
+#for i in num_em_fiducials_B:
+#    b_j.append(Fj[i]*P_G_dimple)
+#b_j = np.array(b_j)
 
+#Compute the registration frame F_reg:
+#F_reg = Cloudregistration(b_j,num_ct_fiducials)
+
+#Correct distortion of the em nav.
+#correct_nav = Correct_Distortion(num_em_nav_G, calreadings_C, C_vec_expected)
+#F_nav = Framecalcuation(correct_nav,num_em_nav_Frame)
+#B_N = []
+#for i in num_em_nav_Frame:
+#    B_N.append(F_nav[i]*P_G_dimple)
+#B_N = np.array(B_N)
+#b_N = []
+#for i in num_em_nav_Frame:
+#    b_N.append(F_reg*B_N[i])
+#b_N = np.array(b_N)
