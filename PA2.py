@@ -225,7 +225,8 @@ def Correct_Distortion(c_ijk,q_total):
                         B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
                         B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
                         B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
-                        corrected_p = corrected_p.append(c_ijk[order] * B_N_i_x * B_N_j_y * B_N_k_z)
+                        corrected_p.append(c_ijk[order] * B_N_i_x * B_N_j_y * B_N_k_z)
+    corrected_p = np.array([corrected_p])
     return corrected_p
 
 
