@@ -1,26 +1,3 @@
-#  .............................................
-#                     _ooOoo_  
-#                    o8888888o  
-#                    88" . "88  
-#                    (| -_- |)  
-#                     O\ = /O  
-#                 ____/`---'\____  
-#               .   ' \\| |// `.  
-#                / \\||| : |||// \  
-#              / _||||| -:- |||||- \  
-#                | | \\\ - /// | |  
-#              | \_| ''\---/'' | |  
-#               \ .-\__ `-` ___/-. /  
-#            ___`. .' /--.--\ `. . __  
-#         ."" '< `.___\_<|>_/___.' >'"".  
-#        | | : `- \`.;`\ _ /`;.`/ - ` : | |  
-#          \ \ `-. \_ __\ /__ _/ .-` / /  
-#  ======`-.____`-.___\_____/___.-`____.-'======  
-#                     `=---='  
-#
-#           佛祖保佑             永无BUG 
-#  .............................................  
-
 #######################################################################################
 #######################################################################################
 ############### Imports  ##############################################################
@@ -148,11 +125,7 @@ def Cloudregistration(a,A):
     F = np.vstack((F1,F2))
 
     return F 
-######################################################################################################
-######################################################################################################
-######################################################################################################
-######################################################################################################
-######################################################################################################
+
 def Find_min_max(em_all):
     em_all_x = em_all.T[0]
     em_all_y = em_all.T[1]
@@ -238,155 +211,6 @@ def Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, c_i
 
     corrected_P = P_F_ijk@c_ijk
     return corrected_P
-    # print(np.shape(em_q), ' shape em_q in Correct_Distortion')
-    # c_ijk = c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, C_vec_expected_2D)
-    # print(np.shape(em_q), ' shape em_q in Correct_Distortion after c_ijk')
-    # P_total = np.zeros((1,3))
-    # for df_rd_P in em_q:
-    #     P_total = np.vstack((P_total,df_rd_P))
-    # P_total = P_total[1: , :]
-
-
-
-    # B_5_k_Poly = []
-    # for P in em_q:
-    #     for i in range(6):
-    #         B_5_k_Poly.append(B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, P, i))
-    # B_5_k_Poly = np.array(B_5_k_Poly)
-    # B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
-    # print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
-
-    # corrected_P = []
-    # for B_5_k in B_5_k_Poly:
-    #     corrected_P_row = np.zeros((3))
-    #     for i in range(6):
-    #         for j in range(6):
-    #             for k in range(6):
-    #                 order = 36*i+6*j+k
-    #                 # print(np.shape(c_ijk[order]), ' shape cijk order')
-    #                 corrected_P_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
-    #     corrected_P_row = np.array(corrected_P_row)
-    #     # print(np.shape(corrected_P_row), 'shape corrected_P_row')
-    #     corrected_P.append(corrected_P_row)
-    # corrected_P = np.array(corrected_P)
-
-
-# def Scale_To_Box(q_total, q_c):
-#     q_total_T = q_total.T
-#     q_total_x = q_total_T[0]
-#     q_total_y = q_total_T[1]
-#     q_total_z = q_total_T[2]
-#     q_total_x_min = np.min(q_total_x)
-#     q_total_y_min = np.min(q_total_y)
-#     q_total_z_min = np.min(q_total_z)
-    
-#     q_total_x_max = np.max(q_total_x)
-#     q_total_y_max = np.max(q_total_y)
-#     q_total_z_max = np.max(q_total_z)
-    
-#     q_c_T = q_c.T
-#     q_c_x = q_c_T[0]
-#     q_c_y = q_c_T[1]
-#     q_c_z = q_c_T[2]
-
-#     ux = (q_c_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
-#     uy = (q_c_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
-#     uz = (q_c_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
-#     u = np.array([ux, uy, uz])
-#     return u
-
-# def B_5_Poly(q_total, q_c, k):
-#     u = Scale_To_Box(q_total, q_c)
-#     v = 1 - u
-#     N = 5
-
-#     bionomial_coef = math.comb(N,k)
-#     # ihritik, Python - math.comb() method, GeeksforGeeks. (2020). https://www.geeksforgeeks.org/python-math-comb-method/ (accessed October 26, 2022). 
-    
-#     B_5_k = bionomial_coef * u**(N-k) * v**(k)
-
-#     # print(np.shape(B_5_k), ' shape B_5_k')
-#     return B_5_k
-
-# def Tensor_Form(rd_P, rd_C):
-#     P_total = np.zeros((1,3))
-#     for df_rd_P in rd_P:
-#         P_total = np.vstack((P_total,df_rd_P))
-#     P_total = P_total[1: , :]
-
-#     C_total = np.zeros((1,3))
-#     for df_rd_C in rd_C:
-#         C_total = np.vstack((C_total,df_rd_C))
-#     C_total = C_total[1: , :]
-
-#     B_5_k_Poly = []
-#     for df_rd_C in rd_C:
-#         for C in df_rd_C:
-#             for i in range(6):
-#                 B_5_k_Poly.append(B_5_Poly(P_total, C, i))
-#     B_5_k_Poly = np.array(B_5_k_Poly)
-#     B_5_k_Poly = B_5_k_Poly.reshape((len(C_total), 6, 3))
-
-#     F_ijk = np.zeros((216))
-#     for B_5_k in B_5_k_Poly:
-#         F_row = []
-#         for i in range(6):
-#             for j in range(6):
-#                 for k in range(6):
-#                     F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
-#         F_row = np.array(F_row)
-#         # print(np.shape(F_row), ' shape F_row')
-#         F_ijk = np.vstack((F_ijk,F_row))
-#     F_ijk = F_ijk[1:, :]
-#     return F_ijk
-
-# def c_ijk_lstsq(rd_P, rd_C, C_vec_expected):
-#     P_F_ijk = Tensor_Form(rd_P, rd_C)
-#     P_c_ijk = np.linalg.lstsq(P_F_ijk,C_vec_expected, rcond=None)[0]
-#     # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
-#     return P_c_ijk
-
-# def Correct_Distortion(rd_P,rd_C, C_vec_expected):
-#     c_ijk = c_ijk_lstsq(rd_P, rd_C, C_vec_expected)
-#     P_total = np.zeros((1,3))
-#     for df_rd_P in rd_P:
-#         P_total = np.vstack((P_total,df_rd_P))
-#     P_total = P_total[1: , :]
-
-#     C_total = np.zeros((1,3))
-#     for df_rd_C in rd_C:
-#         C_total = np.vstack((C_total,df_rd_C))
-#     C_total = C_total[1: , :]
-
-#     B_5_k_Poly = []
-#     for df_rd_C in rd_C:
-#         for C in df_rd_C:
-#             for i in range(6):
-#                 B_5_k_Poly.append(B_5_Poly(P_total, C, i))
-#     B_5_k_Poly = np.array(B_5_k_Poly)
-#     B_5_k_Poly = B_5_k_Poly.reshape((len(C_total), 6, 3))
-
-#     corrected_P = []
-#     for B_5_k in B_5_k_Poly:
-#         corrected_P_row = np.zeros((3))
-#         for i in range(6):
-#             for j in range(6):
-#                 for k in range(6):
-#                     order = 36*i+6*j+k
-#                     # print(np.shape(c_ijk[order]), ' shape cijk order')
-#                     corrected_P_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
-#         corrected_P_row = np.array(corrected_P_row)
-#         # print(np.shape(corrected_P_row), 'shape corrected_P_row')
-#         corrected_P.append(corrected_P_row)
-#     corrected_P = np.array(corrected_P)
-
-#     return corrected_P
-
-################################################################################################################################################
-################################################################################################################################################
-################################################################################################################################################
-################################################################################################################################################
-################################################################################################################################################
 
 def LeastSquare(F):
         R = np.array([[0,0,0]])
@@ -467,32 +291,6 @@ def Framecalcuation(calpivot, num_calpivot_Frame, g_j):
     
 
     return F_P
-# def Framecalcuation(calpivot, num_calpivot_Frame, ):
-#         # points in first data frame
-#         P_1 = calpivot[0]
-
-#         # points' average in first data frame
-#         P_1_0 = np.mean(P_1, axis=0)
-
-#         # Calc p_j differences between points and points average
-#         p_j = []
-#         for P_j in P_1:
-#             p_j.append(P_j - P_1_0)
-#         p_j = np.array(p_j)
-
-#         # Calc F_P Transformation between EM coordinate to pointer
-#         F_P = []
-#         for j in range (num_calpivot_Frame):
-#             # EM points from each data frame
-#             P_EM = calpivot[j]
-        
-#             # calculate EM marker Point Cloud Transformation 
-#             # Store all the matrices
-#             F_P.append(Cloudregistration(p_j, P_EM))
-
-#         F_P = np.array(F_P)
-
-#         return F_P
 
 
 #######################################################################################
@@ -500,8 +298,8 @@ def Framecalcuation(calpivot, num_calpivot_Frame, g_j):
 ############### Data Import  ##########################################################
 #######################################################################################
 #######################################################################################
-# Name = np.array(['debug-a', 'debug-b', 'debug-c', 'debug-d', 'debug-e', 'debug-f', 'unknown-g', 'unknown-h' , 'unknown-i', 'unknown-j', 'unknown-k'])
-Name = np.array(['debug-f'])
+Name = np.array(['debug-a', 'debug-b', 'debug-c', 'debug-d', 'debug-e', 'debug-f', 'unknown-g', 'unknown-h' , 'unknown-i', 'unknown-j'])
+# Name = np.array(['debug-f'])
 name = ''
 for nm in Name:
 
@@ -663,143 +461,177 @@ for nm in Name:
         K = k*num_em_nav_len
         em_nav_G[k] = em_nav[(1) + K : (1+num_em_nav_G) + K , : ]
 
-#######################################################################################
-#######################################################################################
-############### Calculation  ##########################################################
-#######################################################################################
-#######################################################################################
+    #######################################################################################
+    #######################################################################################
+    ############### Calculation  ##########################################################
+    #######################################################################################
+    #######################################################################################
 
-# F_D Transformation between optical tracker and EM tracker coordinates through all data frames
-F_D = []
-for i in range (len(calreadings_D)):
-    F_D.append(Cloudregistration(calbody_d,calreadings_D[i]))
-    # print('F_D')
-# print(len(calreadings_D), len(calbody_d))
-F_D = np.array([F_D])[0]
-# print(F_D)
-# print(np.shape(F_D),' shape F_D')
+    # F_D Transformation between optical tracker and EM tracker coordinates through all data frames
+    F_D = []
+    for i in range (len(calreadings_D)):
+        F_D.append(Cloudregistration(calbody_d,calreadings_D[i]))
+        # print('F_D')
+    # print(len(calreadings_D), len(calbody_d))
+    F_D = np.array([F_D])[0]
+    # print(F_D)
+    # print(np.shape(F_D),' shape F_D')
 
-# F_A transformation between calibration object and optical trackercoordinates through all data frames
-F_A = []
-for j in range (len(calreadings_A)):
-    F_A.append(Cloudregistration(calbody_a,calreadings_A[j]))
-    # print('F_A')
-F_A = np.array([F_A])[0]
-# print(F_A)
-# print(np.shape(F_A),' shape F_A')
+    # F_A transformation between calibration object and optical trackercoordinates through all data frames
+    F_A = []
+    for j in range (len(calreadings_A)):
+        F_A.append(Cloudregistration(calbody_a,calreadings_A[j]))
+        # print('F_A')
+    F_A = np.array([F_A])[0]
+    # print(F_A)
+    # print(np.shape(F_A),' shape F_A')
 
-# Calc C_vector expected for each data frame
-C_vec_expected = []
-C_vec_expected_d = []
-# print(calbody_c)
-# print(np.shape(calbody_c))
+    # Calc C_vector expected for each data frame
+    C_vec_expected = []
+    C_vec_expected_d = []
+    # print(calbody_c)
+    # print(np.shape(calbody_c))
 
-# Make c into 4x1 matrix
-c_I = np.ones((len(calbody_c), 1))
-# K. Lieret, Numpy.ones#, Numpy.ones - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ones.html (accessed October 13, 2022). 
-c = np.hstack((calbody_c,c_I))
-# C. Harris, Numpy.hstack#, Numpy.hstack - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.hstack.html (accessed October 12, 2022). 
-c_T = c.T
-# print(c)
-# print(np.shape(c))
-# print(c.T)
-# print(np.shape(c.T))
-# print(c_T[:,0])
-for d in range(len(F_D)):
-    F_D_d = F_D[d]
-    F_A_d = F_A[d]
-    for k in range(len(calbody_c)):
-        C = np.linalg.inv(F_D_d) @ F_A_d @ c_T[:,k]
-        # I. Polat, Numpy.linalg.inv#, Numpy.linalg.inv - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.inv.html (accessed October 13, 2022). 
-        C = C[0:3]
-        C_vec_expected.append(C)
+    # Make c into 4x1 matrix
+    c_I = np.ones((len(calbody_c), 1))
+    # K. Lieret, Numpy.ones#, Numpy.ones - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ones.html (accessed October 13, 2022). 
+    c = np.hstack((calbody_c,c_I))
+    # C. Harris, Numpy.hstack#, Numpy.hstack - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.hstack.html (accessed October 12, 2022). 
+    c_T = c.T
+    # print(c)
+    # print(np.shape(c))
+    # print(c.T)
+    # print(np.shape(c.T))
+    # print(c_T[:,0])
+    for d in range(len(F_D)):
+        F_D_d = F_D[d]
+        F_A_d = F_A[d]
+        for k in range(len(calbody_c)):
+            C = np.linalg.inv(F_D_d) @ F_A_d @ c_T[:,k]
+            # I. Polat, Numpy.linalg.inv#, Numpy.linalg.inv - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.inv.html (accessed October 13, 2022). 
+            C = C[0:3]
+            C_vec_expected.append(C)
 
 
-# Get qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z for all EM readings
-C_vec_expected = np.array([C_vec_expected])
-# print(C_vec_expected, 'C_expected')
-print(np.shape(C_vec_expected), 'C_expected shape')
-print(np.shape(calreadings_C), ' shape calreadings_C')
-print(np.shape(calempivot_G), 'shape calempivot_G')
-print(np.shape(em_fiducials_G), ' shape em_fiducials_G')
-print(np.shape(em_nav_G), 'shape em_nav_G')
+    # Get qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z for all EM readings
+    C_vec_expected = np.array([C_vec_expected])
+    # print(C_vec_expected, 'C_expected')
+    print(np.shape(C_vec_expected), 'C_expected shape')
+    print(np.shape(calreadings_C), ' shape calreadings_C')
+    print(np.shape(calempivot_G), 'shape calempivot_G')
+    print(np.shape(em_fiducials_G), ' shape em_fiducials_G')
+    print(np.shape(em_nav_G), 'shape em_nav_G')
 
-C_vec_expected_flat = np.ndarray.flatten(C_vec_expected)
-calreadings_C_flat = np.ndarray.flatten(calreadings_C)
-calempivot_G_flat = np.ndarray.flatten(calempivot_G)
-em_fiducials_G_flat = np.ndarray.flatten(em_fiducials_G)
-em_nav_G_flat = np.ndarray.flatten(em_nav_G)
+    C_vec_expected_flat = np.ndarray.flatten(C_vec_expected)
+    calreadings_C_flat = np.ndarray.flatten(calreadings_C)
+    calempivot_G_flat = np.ndarray.flatten(calempivot_G)
+    em_fiducials_G_flat = np.ndarray.flatten(em_fiducials_G)
+    em_nav_G_flat = np.ndarray.flatten(em_nav_G)
 
-em_all = np.hstack((C_vec_expected_flat, calreadings_C_flat, calempivot_G_flat, em_fiducials_G_flat, em_nav_G_flat))
-# print(np.shape(em_all), ' shape em_all')
-em_all = em_all.reshape(int(len(em_all)/3), 3)
-# print(np.shape(em_all), ' shape em_all')
+    em_all = np.hstack((C_vec_expected_flat, calreadings_C_flat, calempivot_G_flat, em_fiducials_G_flat, em_nav_G_flat))
+    # print(np.shape(em_all), ' shape em_all')
+    em_all = em_all.reshape(int(len(em_all)/3), 3)
+    # print(np.shape(em_all), ' shape em_all')
 
-qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z = Find_min_max(em_all)
+    qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z = Find_min_max(em_all)
 
-# Convert all dataframe to 2D
-C_vec_expected_2D = C_vec_expected_flat.reshape(int(len(C_vec_expected_flat)/3), 3)
-print(np.shape(C_vec_expected_2D), ' shape C_vec_expected_2D')
-calreadings_C_2D = calreadings_C_flat.reshape(int(len(calreadings_C_flat)/3), 3)
-print(np.shape(calreadings_C_2D), ' shape calreadings_C_2D')
-calempivot_G_2D = calempivot_G_flat.reshape(int(len(calempivot_G_flat)/3), 3)
-print(np.shape(calempivot_G_2D), ' shape calempivot_G_2D')
-em_fiducials_G_2D = em_fiducials_G_flat.reshape(int(len(em_fiducials_G_flat)/3), 3)
-print(np.shape(em_fiducials_G_2D), ' shape em_fiducials_G_2D')
-em_nav_G_2D = em_nav_G_flat.reshape(int(len(em_nav_G_flat)/3), 3)
-print(np.shape(em_nav_G_2D), ' shape em_nav_G_2D')
+    # Convert all dataframe to 2D
+    C_vec_expected_2D = C_vec_expected_flat.reshape(int(len(C_vec_expected_flat)/3), 3)
+    print(np.shape(C_vec_expected_2D), ' shape C_vec_expected_2D')
+    calreadings_C_2D = calreadings_C_flat.reshape(int(len(calreadings_C_flat)/3), 3)
+    print(np.shape(calreadings_C_2D), ' shape calreadings_C_2D')
+    calempivot_G_2D = calempivot_G_flat.reshape(int(len(calempivot_G_flat)/3), 3)
+    print(np.shape(calempivot_G_2D), ' shape calempivot_G_2D')
+    em_fiducials_G_2D = em_fiducials_G_flat.reshape(int(len(em_fiducials_G_flat)/3), 3)
+    print(np.shape(em_fiducials_G_2D), ' shape em_fiducials_G_2D')
+    em_nav_G_2D = em_nav_G_flat.reshape(int(len(em_nav_G_flat)/3), 3)
+    print(np.shape(em_nav_G_2D), ' shape em_nav_G_2D')
 
-# Calculate c_ijk
-c_ijk = c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calreadings_C_2D, C_vec_expected_2D)
+    # Calculate c_ijk
+    c_ijk = c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calreadings_C_2D, C_vec_expected_2D)
 
-# Calculate the corrected of C
-corrected_C = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calreadings_C_2D, c_ijk)
-# print(corrected_C[330], 'corrected_C')
-# print(C_vec_expected_2D[330], 'C_expected_2D')
-# print(np.shape(corrected_C), 'shape corrected_C')
-# print(np.shape(C_vec_expected_2D), 'C_vec_expected_2D')
+    # Calculate the corrected of C
+    corrected_C = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calreadings_C_2D, c_ijk)
+    # print(corrected_C[330], 'corrected_C')
+    # print(C_vec_expected_2D[330], 'C_expected_2D')
+    # print(np.shape(corrected_C), 'shape corrected_C')
+    # print(np.shape(C_vec_expected_2D), 'C_vec_expected_2D')
 
-#EM Caliberation with distortion correct data
-corrected_G = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calempivot_G_2D, c_ijk)
-# print(np.shape(corrected_G), 'shape corrected_G')
-corrected_G_3D = corrected_G.reshape((num_calempivot_Frame, int(len(corrected_G)/num_calempivot_Frame), 3))
-# print(np.shape(corrected_G_3D), 'shape corrected_G_3D')
-P_G_dimple, t_G, F_G, g_j = Point_Calibration(corrected_G_3D, num_calempivot_Frame)
-print(P_G_dimple, 'P_G_dimple')
-print(t_G, ' t_G')
-print(np.shape(g_j), 'shape g_j')
+    #EM Caliberation with distortion correct data
+    corrected_G = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calempivot_G_2D, c_ijk)
+    # print(np.shape(corrected_G), 'shape corrected_G')
+    corrected_G_3D = corrected_G.reshape((num_calempivot_Frame, int(len(corrected_G)/num_calempivot_Frame), 3))
+    # print(np.shape(corrected_G_3D), 'shape corrected_G_3D')
+    P_G_dimple, t_G, F_G, g_j = Point_Calibration(corrected_G_3D, num_calempivot_Frame)
+    print(P_G_dimple, 'P_G_dimple')
+    print(t_G, ' t_G')
+    print(np.shape(g_j), 'shape g_j')
 
-# Correct distortion of the em fiducials.
-corrected_J = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_fiducials_G_2D, c_ijk)
-# print(np.shape(corrected_J), 'shape corrected_J')
-corrected_J_3D = corrected_J.reshape((num_em_fiducials_B, int(len(corrected_J)/num_em_fiducials_B), 3))
-# print(np.shape(corrected_J_3D), 'shape corrected_J_3D')
+    # Correct distortion of the em fiducials.
+    corrected_J = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_fiducials_G_2D, c_ijk)
+    # print(np.shape(corrected_J), 'shape corrected_J')
+    corrected_J_3D = corrected_J.reshape((num_em_fiducials_B, int(len(corrected_J)/num_em_fiducials_B), 3))
+    # print(np.shape(corrected_J_3D), 'shape corrected_J_3D')
 
-# Compute the locations b_j of the fiducials points:
-Fj = Framecalcuation(corrected_J_3D,num_em_fiducials_B, g_j)
-print(np.shape(Fj), 'shape Fj')
-t_G_I = np.vstack([t_G,np.array([1])])
-bj_I = Fj@t_G_I
-print(np.shape(bj_I), 'shape bj_I')
-bj = bj_I[:, :-1, :]
-bj = bj.reshape((len(bj),3))
-print(np.shape(bj), 'shape bj')
+    # Compute the locations b_j of the fiducials points:
+    Fj = Framecalcuation(corrected_J_3D,num_em_fiducials_B, g_j)
+    print(np.shape(Fj), 'shape Fj')
+    t_G_I = np.vstack([t_G,np.array([1])])
+    bj_I = Fj@t_G_I
+    print(np.shape(bj_I), 'shape bj_I')
+    bj = bj_I[:, :-1, :]
+    bj = bj.reshape((len(bj),3))
+    print(np.shape(bj), 'shape bj')
 
-# #Compute the registration frame F_reg:
+    # #Compute the registration frame F_reg:
 
-F_reg = Cloudregistration(bj,ct_fiducials_B)
-# print(F_reg, ' F_reg')
-# print(np.shape(F_reg), ' shape F_reg')
+    F_reg = Cloudregistration(bj,ct_fiducials_B)
+    # print(F_reg, ' F_reg')
+    # print(np.shape(F_reg), ' shape F_reg')
 
-# Correct distortion of the em nav.
-corrected_nav = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z,em_nav_G_2D, c_ijk)
-corrected_nav_3D = corrected_nav.reshape((num_em_nav_Frame, int(len(corrected_nav)/num_em_nav_Frame), 3))
-F_nav = Framecalcuation(corrected_nav_3D,num_em_nav_Frame, g_j)
+    # Correct distortion of the em nav.
+    corrected_nav = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z,em_nav_G_2D, c_ijk)
+    corrected_nav_3D = corrected_nav.reshape((num_em_nav_Frame, int(len(corrected_nav)/num_em_nav_Frame), 3))
+    F_nav = Framecalcuation(corrected_nav_3D,num_em_nav_Frame, g_j)
 
-bj_nav_I = F_nav@t_G_I
+    bj_nav_I = F_nav@t_G_I
 
-b_N_i_I = F_reg@bj_nav_I
-b_N_i = b_N_i_I[:, :-1, :]
-b_N_i = b_N_i.reshape((len(b_N_i),3))
-# print(b_N_i, ' b_N_i')
+    b_N_i_I = F_reg@bj_nav_I
+    b_N_i = b_N_i_I[:, :-1, :]
+    b_N_i = b_N_i.reshape((len(b_N_i),3))
+    # print(b_N_i, ' b_N_i')
 
+    #
+    F_D_opt = []
+    for i in range (num_caloptpivot_Frame):
+        F_D_opt.append(Cloudregistration(calbody_d,caloptpivot_D[i]))
+    F_D_opt = np.array([F_D_opt])[0]
+
+    P_H_dimple, t_H, F_H, h_j = Point_Calibration(caloptpivot_H, num_caloptpivot_Frame)
+
+    F_D_opt_inv = np.linalg.inv(F_D_opt)
+    F_D_opt_inv_H = F_D_opt_inv@F_H
+    P_H_dimple = LeastSquare(F_D_opt_inv_H)[0]
+
+    #######################################################################################
+    #######################################################################################
+    ############### Output ################################################################
+    #######################################################################################
+    #######################################################################################
+    # Output 1
+    # Row 1: NC ,Nframes, NAME-OUTPUT1.TXT
+    PA_2_output1_row_1 = np.array([[num_calbody_c, num_calreadings_Frame, 'PA2_' + nm + '-OUTPUT1.TXT']])
+
+    # Row 2: Estimated post position with EM probe pivot calibration
+    PA_2_output1_row_2 = P_G_dimple.reshape(1,3)
+
+    # Row 2: Estimated post position with optical probe pivot calibration
+    PA_2_output1_row_3 = P_H_dimple.reshape(1,3)
+
+    # Rest of Rows: Coordinates of C_j expected in all dataframes
+    PA_2_output1_row_C_exp = C_vec_expected[0]
+    print(np.shape(C_vec_expected), 'shape C_vec_expected')
+    PA_2_output1 = np.vstack((PA_2_output1_row_1, PA_2_output1_row_2, PA_2_output1_row_3, PA_2_output1_row_C_exp))
+    pd.DataFrame(PA_2_output1).to_csv('pa2_student_data\Output\PA1_'+nm+'_output1.csv')
+
+    # Output 2
