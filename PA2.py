@@ -451,32 +451,48 @@ def Point_Calibration(calpivot, num_calpivot_Frame):
 
         return P_dimple, t_p, F_P, p_j
 
-def Framecalcuation(calpivot, num_calpivot_Frame):
-        # points in first data frame
-        P_1 = calpivot[0]
+def Framecalcuation(calpivot, num_calpivot_Frame, g_j):
+    G = calpivot
+    print(np.shape(G), ' shape G')
 
-        # points' average in first data frame
-        P_1_0 = np.mean(P_1, axis=0)
+    F_P = []
+    for j in range (num_calpivot_Frame):
+        # EM points from each data frame
+        P_EM = calpivot[j]
+    
+        # calculate EM marker Point Cloud Transformation 
+        # Store all the matrices
+        F_P.append(Cloudregistration(g_j, P_EM))
+    F_P = np.array(F_P)
+    
 
-        # Calc p_j differences between points and points average
-        p_j = []
-        for P_j in P_1:
-            p_j.append(P_j - P_1_0)
-        p_j = np.array(p_j)
+    return F_P
+# def Framecalcuation(calpivot, num_calpivot_Frame, ):
+#         # points in first data frame
+#         P_1 = calpivot[0]
 
-        # Calc F_P Transformation between EM coordinate to pointer
-        F_P = []
-        for j in range (num_calpivot_Frame):
-            # EM points from each data frame
-            P_EM = calpivot[j]
+#         # points' average in first data frame
+#         P_1_0 = np.mean(P_1, axis=0)
+
+#         # Calc p_j differences between points and points average
+#         p_j = []
+#         for P_j in P_1:
+#             p_j.append(P_j - P_1_0)
+#         p_j = np.array(p_j)
+
+#         # Calc F_P Transformation between EM coordinate to pointer
+#         F_P = []
+#         for j in range (num_calpivot_Frame):
+#             # EM points from each data frame
+#             P_EM = calpivot[j]
         
-            # calculate EM marker Point Cloud Transformation 
-            # Store all the matrices
-            F_P.append(Cloudregistration(p_j, P_EM))
+#             # calculate EM marker Point Cloud Transformation 
+#             # Store all the matrices
+#             F_P.append(Cloudregistration(p_j, P_EM))
 
-        F_P = np.array(F_P)
+#         F_P = np.array(F_P)
 
-        return F_P
+#         return F_P
 
 
 #######################################################################################
@@ -485,7 +501,7 @@ def Framecalcuation(calpivot, num_calpivot_Frame):
 #######################################################################################
 #######################################################################################
 # Name = np.array(['debug-a', 'debug-b', 'debug-c', 'debug-d', 'debug-e', 'debug-f', 'unknown-g', 'unknown-h' , 'unknown-i', 'unknown-j', 'unknown-k'])
-Name = np.array(['debug-a'])
+Name = np.array(['debug-f'])
 name = ''
 for nm in Name:
 
@@ -745,33 +761,45 @@ corrected_C = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z,
 
 #EM Caliberation with distortion correct data
 corrected_G = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calempivot_G_2D, c_ijk)
-print(np.shape(corrected_G), 'shape corrected_G')
+# print(np.shape(corrected_G), 'shape corrected_G')
 corrected_G_3D = corrected_G.reshape((num_calempivot_Frame, int(len(corrected_G)/num_calempivot_Frame), 3))
-print(np.shape(corrected_G_3D), 'shape corrected_G_3D')
+# print(np.shape(corrected_G_3D), 'shape corrected_G_3D')
 P_G_dimple, t_G, F_G, g_j = Point_Calibration(corrected_G_3D, num_calempivot_Frame)
+print(P_G_dimple, 'P_G_dimple')
+print(t_G, ' t_G')
+print(np.shape(g_j), 'shape g_j')
 
-
-#Correct distortion of the em fiducials.
+# Correct distortion of the em fiducials.
 corrected_J = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_fiducials_G_2D, c_ijk)
-corrected_J_3D = corrected_J.reshape((num_em_fiducials_G, int(len(corrected_J)/num_em_fiducials_G), 3))
-Fj = Framecalcuation(corrected_J_3D,num_em_fiducials_B)
-#Compute the locations b_j of the fiducials points:
-#b_j = []
-#for i in num_em_fiducials_B:
-#    b_j.append(Fj[i]*P_G_dimple)
-#b_j = np.array(b_j)
+# print(np.shape(corrected_J), 'shape corrected_J')
+corrected_J_3D = corrected_J.reshape((num_em_fiducials_B, int(len(corrected_J)/num_em_fiducials_B), 3))
+# print(np.shape(corrected_J_3D), 'shape corrected_J_3D')
 
-#Compute the registration frame F_reg:
-#F_reg = Cloudregistration(b_j,num_ct_fiducials)
+# Compute the locations b_j of the fiducials points:
+Fj = Framecalcuation(corrected_J_3D,num_em_fiducials_B, g_j)
+print(np.shape(Fj), 'shape Fj')
+t_G_I = np.vstack([t_G,np.array([1])])
+bj_I = Fj@t_G_I
+print(np.shape(bj_I), 'shape bj_I')
+bj = bj_I[:, :-1, :]
+bj = bj.reshape((len(bj),3))
+print(np.shape(bj), 'shape bj')
 
-#Correct distortion of the em nav.
-#correct_nav = Correct_Distortion(num_em_nav_G, calreadings_C, C_vec_expected)
-#F_nav = Framecalcuation(correct_nav,num_em_nav_Frame)
-#B_N = []
-#for i in num_em_nav_Frame:
-#    B_N.append(F_nav[i]*P_G_dimple)
-#B_N = np.array(B_N)
-#b_N = []
-#for i in num_em_nav_Frame:
-#    b_N.append(F_reg*B_N[i])
-#b_N = np.array(b_N)
+# #Compute the registration frame F_reg:
+
+F_reg = Cloudregistration(bj,ct_fiducials_B)
+# print(F_reg, ' F_reg')
+# print(np.shape(F_reg), ' shape F_reg')
+
+# Correct distortion of the em nav.
+corrected_nav = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z,em_nav_G_2D, c_ijk)
+corrected_nav_3D = corrected_nav.reshape((num_em_nav_Frame, int(len(corrected_nav)/num_em_nav_Frame), 3))
+F_nav = Framecalcuation(corrected_nav_3D,num_em_nav_Frame, g_j)
+
+bj_nav_I = F_nav@t_G_I
+
+b_N_i_I = F_reg@bj_nav_I
+b_N_i = b_N_i_I[:, :-1, :]
+b_N_i = b_N_i.reshape((len(b_N_i),3))
+# print(b_N_i, ' b_N_i')
+

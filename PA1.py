@@ -156,7 +156,7 @@ for nm in Name:
     # Point Cloud to Point Cloud 
     # B. K. P. Horn, Closed-form solution of absolute orientation using unit quaternions, Optica Publishing Group. (1987). https://opg.optica.org/josaa/fulltext.cfm?uri=josaa-4-4-629&amp;id=2711 (accessed October 12, 2022). 
     def Cloudregistration(a,A):
-
+        # print(np.shape(a), 'shape a')
         # Calc average
         a_bar = np.mean(a, axis=0)
 
@@ -307,6 +307,7 @@ for nm in Name:
         for P_j in P_1:
             p_j.append(P_j - P_1_0)
         p_j = np.array(p_j)
+        print(np.shape(p_j), ' p_j shape')
 
         # Calc F_P Transformation between EM coordinate to pointer
         F_P = []
@@ -391,7 +392,7 @@ for nm in Name:
         F_D_opt.append(Cloudregistration(h_calbody_d,h_caloptpivot_D[i]))
     F_D_opt = np.array([F_D_opt])[0]
 
-    print(np.shape(h_caloptpivot_H), 'shape h_caloptpivot_H')
+    # print(np.shape(h_caloptpivot_H), 'shape h_caloptpivot_H')
     P_H_dimple, t_H, F_H, h_j = Point_Calibration(h_caloptpivot_H, h_num_caloptpivot_Frame)
 
     F_D_opt_inv = np.linalg.inv(F_D_opt)
