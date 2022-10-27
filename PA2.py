@@ -188,7 +188,32 @@ def B_5_Poly(q_total, q, k):
     # print(np.shape(B_5_k), ' shape B_5_k')
     return B_5_k
 
-# def Tensor_Form()
+def Tensor_Form(rd_P):
+    P_total = np.zeros((1,3))
+    for df_rd_P in rd_P:
+        P_total = np.vstack((P_total,df_rd_P))
+    P_total = P_total[1: , :]
+
+    B_5_k_Poly = []
+    for df_rd_P in rd_P:
+        for p in df_rd_P:
+            for i in range(6):
+                B_5_k_Poly.append(B_5_Poly(P_total, p, i))
+    B_5_k_Poly = np.array(B_5_k_Poly)
+    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
+
+    F_ijk = np.zeros((216))
+    for B_5_k in B_5_k_Poly:
+        F_row = []
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
+                    F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
+        F_row = np.array(F_row)
+        # print(np.shape(F_row), ' shape F_row')
+        F_ijk = np.vstack((F_ijk,F_row))
+    F_ijk = F_ijk[1:, :]
+    return F_ijk
 
 ######################################################################################################
 ######################################################################################################
@@ -501,63 +526,36 @@ for d in range(len(F_D)):
 
 # print(np.shape(calreadings_C), ' shape calreadings_C')
 
-
-def Tensor_Form(rd_P):
-    P_total = np.zeros((1,3))
-    for df_rd_P in rd_P:
-        P_total = np.vstack((P_total,df_rd_P))
-    P_total = P_total[1: , :]
-
-    B_5_k_Poly = []
-    for df_rd_P in rd_P:
-        for p in df_rd_P:
-            for i in range(6):
-                B_5_k_Poly.append(B_5_Poly(P_total, p, i))
-    B_5_k_Poly = np.array(B_5_k_Poly)
-    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
-
-    F_ijk = np.zeros((216))
-    for B_5_k in B_5_k_Poly:
-        F_row = []
-        for i in range(6):
-            for j in range(6):
-                for k in range(6):
-                    F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
-        F_row = np.array(F_row)
-        # print(np.shape(F_row), ' shape F_row')
-        F_ijk = np.vstack((F_ijk,F_row))
-    F_ijk = F_ijk[1:, :]
-    return F_ijk
     
-    
-q_total = np.zeros((1,3))
+F_ijk = Tensor_Form(calreadings_C)
+# q_total = np.zeros((1,3))
 
-for df_calreadings_C in calreadings_C:
-    q_total = np.vstack((q_total,df_calreadings_C))
-q_total = q_total[1: , :]
+# for df_calreadings_C in calreadings_C:
+#     q_total = np.vstack((q_total,df_calreadings_C))
+# q_total = q_total[1: , :]
 
-B_5_k_Poly = []
-for df_calreadings_C in calreadings_C:
-    for q in df_calreadings_C:
-        for i in range(6):
-            B_5_k_Poly.append(B_5_Poly(q_total, q, i))
-B_5_k_Poly = np.array(B_5_k_Poly)
-B_5_k_Poly = B_5_k_Poly.reshape((len(q_total), 6, 3))
-# print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
+# B_5_k_Poly = []
+# for df_calreadings_C in calreadings_C:
+#     for q in df_calreadings_C:
+#         for i in range(6):
+#             B_5_k_Poly.append(B_5_Poly(q_total, q, i))
+# B_5_k_Poly = np.array(B_5_k_Poly)
+# B_5_k_Poly = B_5_k_Poly.reshape((len(q_total), 6, 3))
+# # print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
 
 
 
-F_ijk = np.zeros((216))
-for B_5_k in B_5_k_Poly:
-    F_row = []
-    for i in range(6):
-        for j in range(6):
-            for k in range(6):
-                F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
-    F_row = np.array(F_row)
-    # print(np.shape(F_row), ' shape F_row')
-    F_ijk = np.vstack((F_ijk,F_row))
-F_ijk = F_ijk[1:, :]
+# F_ijk = np.zeros((216))
+# for B_5_k in B_5_k_Poly:
+#     F_row = []
+#     for i in range(6):
+#         for j in range(6):
+#             for k in range(6):
+#                 F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
+#     F_row = np.array(F_row)
+#     # print(np.shape(F_row), ' shape F_row')
+#     F_ijk = np.vstack((F_ijk,F_row))
+# F_ijk = F_ijk[1:, :]
 # print(np.shape(F_ijk), ' shape F_ijk')
 
 
