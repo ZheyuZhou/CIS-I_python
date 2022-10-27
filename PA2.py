@@ -215,6 +215,54 @@ def Tensor_Form(rd_P):
     F_ijk = F_ijk[1:, :]
     return F_ijk
 
+
+def Correct_Distortion(c_ijk,rd_P):
+    P_total = np.zeros((1,3))
+    for df_rd_P in rd_P:
+        P_total = np.vstack((P_total,df_rd_P))
+    P_total = P_total[1: , :]
+
+    B_5_k_Poly = []
+    for df_rd_P in rd_P:
+        for p in df_rd_P:
+            for i in range(6):
+                B_5_k_Poly.append(B_5_Poly(P_total, p, i))
+    B_5_k_Poly = np.array(B_5_k_Poly)
+    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
+
+    corrected_P = []
+    for B_5_k in B_5_k_Poly:
+        corrected_P_row = np.zeros((3))
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
+                    order = 36*i+6*j+k
+                    # print(np.shape(c_ijk[order]), ' shape cijk order')
+                    corrected_P_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
+        corrected_P_row = np.array(corrected_P_row)
+        # print(np.shape(corrected_P_row), 'shape corrected_P_row')
+        corrected_P.append(corrected_P_row)
+    corrected_P = np.array(corrected_P)
+
+    return corrected_P
+#  def Correct_Distortion(c_ijk,rd_P):
+#     P_total = np.zeros((1,3))
+#     for df_rd_P in rd_P:
+#         P_total = np.vstack((P_total,df_rd_P))
+#     P_total = P_total[1: , :]
+
+#     B_5_k_Poly = []
+#     for df_rd_P in rd_P:
+#         for p in df_rd_P:
+#             for i in range(6):
+#                 B_5_k_Poly.append(B_5_Poly(P_total, p, i))
+#     B_5_k_Poly = np.array(B_5_k_Poly)
+#     B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
+
+    
+#     return corrected_P
+
+
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
@@ -527,7 +575,7 @@ for d in range(len(F_D)):
 # print(np.shape(calreadings_C), ' shape calreadings_C')
 
     
-F_ijk = Tensor_Form(calreadings_C)
+C_F_ijk = Tensor_Form(calreadings_C)
 # q_total = np.zeros((1,3))
 
 # for df_calreadings_C in calreadings_C:
@@ -561,13 +609,48 @@ F_ijk = Tensor_Form(calreadings_C)
 
 # F_ijk = Tensor_Form(q_total)
 
-# # Calculate the least square equation of the Cijk
-c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
-print(c_ijk)
-print(np.shape(c_ijk), 'shape c_ijk')
+# # Calculate the least square equation of the cijk of C
+C_c_ijk = np.linalg.lstsq(C_F_ijk,C_vec_expected, rcond=None)[0]
+print(C_c_ijk)
+print(np.shape(C_c_ijk), 'shape C_c_ijk')
 # # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
 
-# corrected_p = Correct_Distortion(c_ijk, q_total)
 
-# print(corrected_p)
-# print(np.shape(corrected_p), 'shape corrected_p')
+corrected_C = Correct_Distortion(C_c_ijk,calreadings_C)
+
+# q_total = np.zeros((1,3))
+
+# for df_calreadings_C in calreadings_C:
+#     q_total = np.vstack((q_total,df_calreadings_C))
+# q_total = q_total[1: , :]
+
+# B_5_k_Poly = []
+# for df_calreadings_C in calreadings_C:
+#     for q in df_calreadings_C:
+#         for i in range(6):
+#             B_5_k_Poly.append(B_5_Poly(q_total, q, i))
+# B_5_k_Poly = np.array(B_5_k_Poly)
+# B_5_k_Poly = B_5_k_Poly.reshape((len(q_total), 6, 3))
+# # print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
+
+# corrected_C = []
+# for B_5_k in B_5_k_Poly:
+#     corrected_C_row = np.zeros((3))
+#     for i in range(6):
+#         for j in range(6):
+#             for k in range(6):
+#                 order = 36*i+6*j+k
+#                 # print(np.shape(c_ijk[order]), ' shape cijk order')
+#                 corrected_C_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
+#     corrected_C_row = np.array(corrected_C_row)
+#     print(np.shape(corrected_C_row), 'shape corrected_C_row')
+#     corrected_C.append(corrected_C_row)
+# corrected_C = np.array(corrected_C)
+
+# print(corrected_C[3370])
+# print(C_vec_expected[3370], 'C_expected')
+# print(np.shape(corrected_C), 'shape corrected_C')
+# print(np.shape(C_vec_expected), 'C_vec_expected')
+
+
+
