@@ -168,10 +168,11 @@ def Find_min_max(em_all):
 
     return qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z
 
-def Scale_To_Box(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, q):
-    q_x = q[0]
-    q_y = q[1]
-    q_z = q[2]
+def Scale_To_Box(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q):
+    
+    q_x = em_q[0]
+    q_y = em_q[1]
+    q_z = em_q[2]
 
     u_x = (q_x - qmin_x) / (qmax_x - qmin_x)
     u_y = (q_y - qmin_y) / (qmax_y - qmin_y)
@@ -180,20 +181,84 @@ def Scale_To_Box(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, q):
     u = np.array([u_x, u_y, u_z])
     return(u)
 
-def B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, q, k):
-    u = Scale_To_Box(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, q)
+def B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, k):
+    u = Scale_To_Box(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q)
     v = 1 - u
     N = 5
 
     bionomial_coef = math.comb(N,k)
-
+    
     B_5_k = bionomial_coef * u**(N-k) * v**(k)
 
-    print(np.shape(B_5_k), ' shape B_5_k')
+    # print(np.shape(B_5_k), ' shape B_5_k')
     return B_5_k
 
-def Tensor_Form()
+def Tensor_Form(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q):
+    P_total = np.zeros((1,3))
+    for df_rd_P in em_q:
+        P_total = np.vstack((P_total,df_rd_P))
+    P_total = P_total[1: , :]
 
+    B_5_k_Poly = []
+    for P in em_q:
+        for i in range(6):
+            B_5_k_Poly.append(B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, P, i))
+    B_5_k_Poly = np.array(B_5_k_Poly)
+    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
+
+    F_ijk = np.zeros((216))
+    for B_5_k in B_5_k_Poly:
+        F_row = []
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
+                    F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
+        F_row = np.array(F_row)
+        # print(np.shape(F_row), ' shape F_row')
+        F_ijk = np.vstack((F_ijk,F_row))
+    F_ijk = F_ijk[1:, :]
+    return F_ijk
+
+def c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, C_vec_expected_2D):
+    # print(np.shape(em_q), ' shape em_q in c_ijk_lstsq')
+    P_F_ijk = Tensor_Form(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q)
+    # print(np.shape(em_q), ' shape em_q in c_ijk_lstsq after P_F_ijk')
+    P_c_ijk = np.linalg.lstsq(P_F_ijk,C_vec_expected_2D, rcond=None)[0]
+
+    # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
+    return P_c_ijk
+
+def Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, C_vec_expected_2D):
+    # print(np.shape(em_q), ' shape em_q in Correct_Distortion')
+    c_ijk = c_ijk_lstsq(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, em_q, C_vec_expected_2D)
+    # print(np.shape(em_q), ' shape em_q in Correct_Distortion after c_ijk')
+    P_total = np.zeros((1,3))
+    for df_rd_P in em_q:
+        P_total = np.vstack((P_total,df_rd_P))
+    P_total = P_total[1: , :]
+
+    B_5_k_Poly = []
+    for P in em_q:
+        for i in range(6):
+            B_5_k_Poly.append(B_5_Poly(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, P, i))
+    B_5_k_Poly = np.array(B_5_k_Poly)
+    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
+
+    corrected_P = []
+    for B_5_k in B_5_k_Poly:
+        corrected_P_row = np.zeros((3))
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
+                    order = 36*i+6*j+k
+                    # print(np.shape(c_ijk[order]), ' shape cijk order')
+                    corrected_P_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
+        corrected_P_row = np.array(corrected_P_row)
+        # print(np.shape(corrected_P_row), 'shape corrected_P_row')
+        corrected_P.append(corrected_P_row)
+    corrected_P = np.array(corrected_P)
+
+    return corrected_P
 
 # def Scale_To_Box(q_total, q_c):
 #     q_total_T = q_total.T
@@ -645,15 +710,19 @@ em_all = em_all.reshape(int(len(em_all)/3), 3)
 
 qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z = Find_min_max(em_all)
 
-
+# Convert all dataframe to 2D
+C_vec_expected_2D = C_vec_expected_flat.reshape(int(len(C_vec_expected_flat)/3), 3)
+print(np.shape(C_vec_expected_2D), ' shape C_vec_expected_2D')
+calreadings_C_2D = calreadings_C_flat.reshape(int(len(calreadings_C_flat)/3), 3)
+print(np.shape(calreadings_C_2D), ' shape calreadings_C_2D')
 
 
 # Calculate the corrected of C
-# corrected_C = Correct_Distortion(calreadings_C, calreadings_C, C_vec_expected)
-# print(corrected_C[3370])
-# print(C_vec_expected[3370], 'C_expected')
-# print(np.shape(corrected_C), 'shape corrected_C')
-# print(np.shape(C_vec_expected), 'C_vec_expected')
+corrected_C = Correct_Distortion(qmin_x, qmin_y, qmin_z, qmax_x, qmax_y, qmax_z, calreadings_C_2D, C_vec_expected_2D)
+print(corrected_C[3370], 'corrected_C')
+print(C_vec_expected_2D[3370], 'C_expected_2D')
+print(np.shape(corrected_C), 'shape corrected_C')
+print(np.shape(C_vec_expected_2D), 'C_vec_expected_2D')
 
 #EM Caliberation with distortion correct data
 # corrected_G = Correct_Distortion(calempivot_G, calreadings_C, C_vec_expected)
