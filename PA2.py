@@ -146,9 +146,12 @@ def Cloudregistration(a,A):
     F = np.vstack((F1,F2))
 
     return F 
-
-
-def ScaleToBox(q_total):
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+def Scale_To_Box(q_total, q):
     q_total_T = q_total.T
     q_total_x = q_total_T[0]
     q_total_y = q_total_T[1]
@@ -161,73 +164,118 @@ def ScaleToBox(q_total):
     q_total_y_max = np.max(q_total_y)
     q_total_z_max = np.max(q_total_z)
 
-    ux = (q_total_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
-    uy = (q_total_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
-    uz = (q_total_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
+    q_T = q.T
+    q_x = q_T[0]
+    q_y = q_T[1]
+    q_z = q_T[2]
+
+    ux = (q_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
+    uy = (q_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
+    uz = (q_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
     u = np.array([ux, uy, uz])
     return u
 
-def B_5_Poly(q_total, k):
-    u = ScaleToBox(q_total)
+def B_5_Poly(q_total, q, k):
+    u = Scale_To_Box(q_total, q)
     v = 1 - u
     N = 5
+
     bionomial_coef = math.comb(N,k)
     # ihritik, Python - math.comb() method, GeeksforGeeks. (2020). https://www.geeksforgeeks.org/python-math-comb-method/ (accessed October 26, 2022). 
     
-    B_N_k = bionomial_coef * u**(N-k) * v**(k)
+    B_5_k = bionomial_coef * u**(N-k) * v**(k)
 
-    # print(np.shape(B_N_k), ' shape B_N_k')
-    return B_N_k
+    # print(np.shape(B_5_k), ' shape B_5_k')
+    return B_5_k
 
-def B_5_x_Poly(q_total,k):
-    B_N_k_x = B_5_Poly(q_total, k)[0]
-    # print(np.shape(B_N_k_x), ' shape B_N_k_x')
-    return B_N_k_x
+# def Tensor_Form()
 
-def B_5_y_Poly(q_total,k):
-    B_N_k_y = B_5_Poly(q_total, k)[1]
-    # print(np.shape(B_N_k_y), ' shape B_N_k_y')
-    return B_N_k_y
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
 
-def B_5_z_Poly(q_total,k):
-    B_N_k_z = B_5_Poly(q_total, k)[2]
-    # print(np.shape(B_N_k_z), ' shape B_N_k_z')
-    return B_N_k_z
+# def ScaleToBox(q_total):
+#     q_total_T = q_total.T
+#     q_total_x = q_total_T[0]
+#     q_total_y = q_total_T[1]
+#     q_total_z = q_total_T[2]
+#     q_total_x_min = np.min(q_total_x)
+#     q_total_y_min = np.min(q_total_y)
+#     q_total_z_min = np.min(q_total_z)
+    
+#     q_total_x_max = np.max(q_total_x)
+#     q_total_y_max = np.max(q_total_y)
+#     q_total_z_max = np.max(q_total_z)
 
-def Tensor_Form(q_total):
-    # print(len(q_df), 'df_len')
-    df_len = len(q_total)
-    F = np.zeros((df_len,216))
-    F_row = np.zeros((6,6,6))
-    num_list = [0,1,2,3,4,5]
-    for u_i in range(df_len):
-        # print(u_i, ' u_i')
-        for i,j,k in product(num_list, num_list, num_list):
-            B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
-            B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
-            B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
-            F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_k_z
-        F_row_ = np.ndarray.flatten(F_row)
-        # S. Berg, Numpy.ndarray.flatten#, Numpy.ndarray.flatten - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flatten.html (accessed October 26, 2022). 
-        F[u_i] = F_row_
+#     ux = (q_total_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
+#     uy = (q_total_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
+#     uz = (q_total_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
+#     u = np.array([ux, uy, uz])
+#     return u
 
-    return F
+# def B_5_Poly(q_total, k):
+#     u = ScaleToBox(q_total)
+#     v = 1 - u
+#     N = 5
+#     bionomial_coef = math.comb(N,k)
+#     # ihritik, Python - math.comb() method, GeeksforGeeks. (2020). https://www.geeksforgeeks.org/python-math-comb-method/ (accessed October 26, 2022). 
+    
+#     B_N_k = bionomial_coef * u**(N-k) * v**(k)
 
-def Correct_Distortion(c_ijk,q_total):
-    corrected_p = []
-    df_len = len(q_total)
-    for u_i in range(df_len):
-        print(u_i, ' u_i')
-        for i in range(6):
-                for j in range(6):
-                    for k in range(6):
-                        order = 36*i+6*j+k
-                        B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
-                        B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
-                        B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
-                        corrected_p.append(c_ijk[order] * B_N_i_x * B_N_j_y * B_N_k_z)
-    corrected_p = np.array([corrected_p])
-    return corrected_p
+#     # print(np.shape(B_N_k), ' shape B_N_k')
+#     return B_N_k
+
+# def B_5_x_Poly(q_total,k):
+#     B_N_k_x = B_5_Poly(q_total, k)[0]
+#     # print(np.shape(B_N_k_x), ' shape B_N_k_x')
+#     return B_N_k_x
+
+# def B_5_y_Poly(q_total,k):
+#     B_N_k_y = B_5_Poly(q_total, k)[1]
+#     # print(np.shape(B_N_k_y), ' shape B_N_k_y')
+#     return B_N_k_y
+
+# def B_5_z_Poly(q_total,k):
+#     B_N_k_z = B_5_Poly(q_total, k)[2]
+#     # print(np.shape(B_N_k_z), ' shape B_N_k_z')
+#     return B_N_k_z
+
+# def Tensor_Form(q_total):
+#     # print(len(q_df), 'df_len')
+#     df_len = len(q_total)
+#     F = np.zeros((df_len,216))
+#     F_row = np.zeros((6,6,6))
+#     num_list = [0,1,2,3,4,5]
+#     for u_i in range(df_len):
+#         # print(u_i, ' u_i')
+#         for i,j,k in product(num_list, num_list, num_list):
+#             B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
+#             B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
+#             B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
+#             F_row[i][j][k] = B_N_i_x * B_N_j_y * B_N_k_z
+#         F_row_ = np.ndarray.flatten(F_row)
+#         # S. Berg, Numpy.ndarray.flatten#, Numpy.ndarray.flatten - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flatten.html (accessed October 26, 2022). 
+#         F[u_i] = F_row_
+
+#     return F
+
+# def Correct_Distortion(c_ijk,q_total):
+#     corrected_p = []
+#     df_len = len(q_total)
+#     for u_i in range(df_len):
+#         print(u_i, ' u_i')
+#         for i in range(6):
+#                 for j in range(6):
+#                     for k in range(6):
+#                         order = 36*i+6*j+k
+#                         B_N_i_x = B_5_x_Poly(q_total,i)[u_i]
+#                         B_N_j_y = B_5_y_Poly(q_total,j)[u_i]
+#                         B_N_k_z = B_5_z_Poly(q_total,k)[u_i]
+#                         corrected_p.append(c_ijk[order] * B_N_i_x * B_N_j_y * B_N_k_z)
+#     corrected_p = np.array([corrected_p])
+#     return corrected_p
 
 
 #######################################################################################
@@ -453,21 +501,75 @@ for d in range(len(F_D)):
 
 # print(np.shape(calreadings_C), ' shape calreadings_C')
 
+
+def Tensor_Form(rd_P):
+    P_total = np.zeros((1,3))
+    for df_rd_P in rd_P:
+        P_total = np.vstack((P_total,df_rd_P))
+    P_total = P_total[1: , :]
+
+    B_5_k_Poly = []
+    for df_rd_P in rd_P:
+        for p in df_rd_P:
+            for i in range(6):
+                B_5_k_Poly.append(B_5_Poly(P_total, p, i))
+    B_5_k_Poly = np.array(B_5_k_Poly)
+    B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
+
+    F_ijk = np.zeros((216))
+    for B_5_k in B_5_k_Poly:
+        F_row = []
+        for i in range(6):
+            for j in range(6):
+                for k in range(6):
+                    F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
+        F_row = np.array(F_row)
+        # print(np.shape(F_row), ' shape F_row')
+        F_ijk = np.vstack((F_ijk,F_row))
+    F_ijk = F_ijk[1:, :]
+    return F_ijk
+    
+    
 q_total = np.zeros((1,3))
 
 for df_calreadings_C in calreadings_C:
     q_total = np.vstack((q_total,df_calreadings_C))
 q_total = q_total[1: , :]
 
-F_ijk = Tensor_Form(q_total)
+B_5_k_Poly = []
+for df_calreadings_C in calreadings_C:
+    for q in df_calreadings_C:
+        for i in range(6):
+            B_5_k_Poly.append(B_5_Poly(q_total, q, i))
+B_5_k_Poly = np.array(B_5_k_Poly)
+B_5_k_Poly = B_5_k_Poly.reshape((len(q_total), 6, 3))
+# print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
 
-# Calculate the least square equation of the Cijk
+
+
+F_ijk = np.zeros((216))
+for B_5_k in B_5_k_Poly:
+    F_row = []
+    for i in range(6):
+        for j in range(6):
+            for k in range(6):
+                F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
+    F_row = np.array(F_row)
+    # print(np.shape(F_row), ' shape F_row')
+    F_ijk = np.vstack((F_ijk,F_row))
+F_ijk = F_ijk[1:, :]
+# print(np.shape(F_ijk), ' shape F_ijk')
+
+
+# F_ijk = Tensor_Form(q_total)
+
+# # Calculate the least square equation of the Cijk
 c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
-# print(c_ijk)
-# print(np.shape(c_ijk), 'shape c_ijk')
-# I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
+print(c_ijk)
+print(np.shape(c_ijk), 'shape c_ijk')
+# # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
 
-corrected_p = Correct_Distortion(c_ijk, q_total)
+# corrected_p = Correct_Distortion(c_ijk, q_total)
 
-print(corrected_p)
-print(np.shape(corrected_p), 'shape corrected_p')
+# print(corrected_p)
+# print(np.shape(corrected_p), 'shape corrected_p')
