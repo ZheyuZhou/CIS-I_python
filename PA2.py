@@ -151,7 +151,7 @@ def Cloudregistration(a,A):
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
-def Scale_To_Box(q_total, q):
+def Scale_To_Box(q_total, q_c):
     q_total_T = q_total.T
     q_total_x = q_total_T[0]
     q_total_y = q_total_T[1]
@@ -164,19 +164,19 @@ def Scale_To_Box(q_total, q):
     q_total_y_max = np.max(q_total_y)
     q_total_z_max = np.max(q_total_z)
 
-    q_T = q.T
-    q_x = q_T[0]
-    q_y = q_T[1]
-    q_z = q_T[2]
+    q_c_T = q_c.T
+    q_c_x = q_c_T[0]
+    q_c_y = q_c_T[1]
+    q_c_z = q_c_T[2]
 
-    ux = (q_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
-    uy = (q_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
-    uz = (q_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
+    ux = (q_c_x-q_total_x_min) / (q_total_x_max-q_total_x_min)
+    uy = (q_c_y-q_total_y_min) / (q_total_y_max-q_total_y_min)
+    uz = (q_c_z-q_total_z_min) / (q_total_z_max-q_total_z_min)
     u = np.array([ux, uy, uz])
     return u
 
-def B_5_Poly(q_total, q, k):
-    u = Scale_To_Box(q_total, q)
+def B_5_Poly(q_total, q_c, k):
+    u = Scale_To_Box(q_total, q_c)
     v = 1 - u
     N = 5
 
@@ -188,17 +188,17 @@ def B_5_Poly(q_total, q, k):
     # print(np.shape(B_5_k), ' shape B_5_k')
     return B_5_k
 
-def Tensor_Form(rd_P):
+def Tensor_Form(rd_P, rd_C):
     P_total = np.zeros((1,3))
     for df_rd_P in rd_P:
         P_total = np.vstack((P_total,df_rd_P))
     P_total = P_total[1: , :]
 
     B_5_k_Poly = []
-    for df_rd_P in rd_P:
-        for p in df_rd_P:
+    for df_rd_C in rd_C:
+        for C in df_rd_C:
             for i in range(6):
-                B_5_k_Poly.append(B_5_Poly(P_total, p, i))
+                B_5_k_Poly.append(B_5_Poly(P_total, C, i))
     B_5_k_Poly = np.array(B_5_k_Poly)
     B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
 
@@ -215,18 +215,24 @@ def Tensor_Form(rd_P):
     F_ijk = F_ijk[1:, :]
     return F_ijk
 
+def c_ijk_lstsq(rd_P, rd_C, C_vec_expected):
+    P_F_ijk = Tensor_Form(rd_P, rd_C)
+    P_c_ijk = np.linalg.lstsq(P_F_ijk,C_vec_expected, rcond=None)[0]
+    # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
+    return P_c_ijk
 
-def Correct_Distortion(c_ijk,rd_P):
+def Correct_Distortion(rd_P,rd_C, C_vec_expected):
+    c_ijk = c_ijk_lstsq(rd_P, rd_C, C_vec_expected)
     P_total = np.zeros((1,3))
     for df_rd_P in rd_P:
         P_total = np.vstack((P_total,df_rd_P))
     P_total = P_total[1: , :]
 
     B_5_k_Poly = []
-    for df_rd_P in rd_P:
-        for p in df_rd_P:
+    for df_rd_C in rd_C:
+        for C in df_rd_C:
             for i in range(6):
-                B_5_k_Poly.append(B_5_Poly(P_total, p, i))
+                B_5_k_Poly.append(B_5_Poly(P_total, C, i))
     B_5_k_Poly = np.array(B_5_k_Poly)
     B_5_k_Poly = B_5_k_Poly.reshape((len(P_total), 6, 3))
 
@@ -574,83 +580,16 @@ for d in range(len(F_D)):
 
 # print(np.shape(calreadings_C), ' shape calreadings_C')
 
-    
-C_F_ijk = Tensor_Form(calreadings_C)
-# q_total = np.zeros((1,3))
 
-# for df_calreadings_C in calreadings_C:
-#     q_total = np.vstack((q_total,df_calreadings_C))
-# q_total = q_total[1: , :]
-
-# B_5_k_Poly = []
-# for df_calreadings_C in calreadings_C:
-#     for q in df_calreadings_C:
-#         for i in range(6):
-#             B_5_k_Poly.append(B_5_Poly(q_total, q, i))
-# B_5_k_Poly = np.array(B_5_k_Poly)
-# B_5_k_Poly = B_5_k_Poly.reshape((len(q_total), 6, 3))
-# # print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
+# Calculate the corrected of C
+corrected_C = Correct_Distortion(calreadings_C, calreadings_C, C_vec_expected)
+print(corrected_C[3370])
+print(C_vec_expected[3370], 'C_expected')
+print(np.shape(corrected_C), 'shape corrected_C')
+print(np.shape(C_vec_expected), 'C_vec_expected')
 
 
-
-# F_ijk = np.zeros((216))
-# for B_5_k in B_5_k_Poly:
-#     F_row = []
-#     for i in range(6):
-#         for j in range(6):
-#             for k in range(6):
-#                 F_row.append(B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2])
-#     F_row = np.array(F_row)
-#     # print(np.shape(F_row), ' shape F_row')
-#     F_ijk = np.vstack((F_ijk,F_row))
-# F_ijk = F_ijk[1:, :]
-# print(np.shape(F_ijk), ' shape F_ijk')
-
-
-# F_ijk = Tensor_Form(q_total)
-
-# # Calculate the least square equation of the cijk of C
-C_c_ijk = np.linalg.lstsq(C_F_ijk,C_vec_expected, rcond=None)[0]
-print(C_c_ijk)
-print(np.shape(C_c_ijk), 'shape C_c_ijk')
-# # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
-
-
-corrected_C = Correct_Distortion(C_c_ijk,calreadings_C)
-
-# q_total = np.zeros((1,3))
-
-# for df_calreadings_C in calreadings_C:
-#     q_total = np.vstack((q_total,df_calreadings_C))
-# q_total = q_total[1: , :]
-
-# B_5_k_Poly = []
-# for df_calreadings_C in calreadings_C:
-#     for q in df_calreadings_C:
-#         for i in range(6):
-#             B_5_k_Poly.append(B_5_Poly(q_total, q, i))
-# B_5_k_Poly = np.array(B_5_k_Poly)
-# B_5_k_Poly = B_5_k_Poly.reshape((len(q_total), 6, 3))
-# # print(np.shape(B_5_k_Poly), ' shape B_5_k_Poly')
-
-# corrected_C = []
-# for B_5_k in B_5_k_Poly:
-#     corrected_C_row = np.zeros((3))
-#     for i in range(6):
-#         for j in range(6):
-#             for k in range(6):
-#                 order = 36*i+6*j+k
-#                 # print(np.shape(c_ijk[order]), ' shape cijk order')
-#                 corrected_C_row += c_ijk[order]*B_5_k[i][0]*B_5_k[j][1]*B_5_k[k][2]
-#     corrected_C_row = np.array(corrected_C_row)
-#     print(np.shape(corrected_C_row), 'shape corrected_C_row')
-#     corrected_C.append(corrected_C_row)
-# corrected_C = np.array(corrected_C)
-
-# print(corrected_C[3370])
-# print(C_vec_expected[3370], 'C_expected')
-# print(np.shape(corrected_C), 'shape corrected_C')
-# print(np.shape(C_vec_expected), 'C_vec_expected')
-
-
+# G_F_ijk = Tensor_Form(calempivot_G)
+# # print(np.shape(calempivot_G), ' shape calempivot_G')
+# C_c_ijk = np.linalg.lstsq(F_ijk,C_vec_expected, rcond=None)[0]
 
