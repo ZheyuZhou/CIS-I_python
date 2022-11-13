@@ -300,7 +300,7 @@ def Framecalcuation(calpivot, num_calpivot_Frame, g_j):
 #######################################################################################
 Name = np.array(['debug-a', 'debug-b', 'debug-c', 'debug-d', 'debug-e', 'debug-f', 'unknown-g', 'unknown-h' , 'unknown-i', 'unknown-j'])
 # Name = np.array(['debug-f'])
-name = ''
+# name = ''
 for nm in Name:
 
     # calbody
