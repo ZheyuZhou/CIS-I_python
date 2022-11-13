@@ -75,8 +75,8 @@ def SampleReadingsTest_ABDS(address, Num_A, Num_B):
     return N_A_Record, N_B_Record, N_D_record, N_S_record
 
 def Dictionary(address, Num_A, Num_B):
-    
-    return 
+        
+    return pa3_Dictionary
 
 #######################################################################################
 #######################################################################################
