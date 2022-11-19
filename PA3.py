@@ -46,11 +46,7 @@ import pa345DataImport as dataimport
 #######################################################################################
 
 if __name__ == '__main__':
-    #######################################################################################
-    #######################################################################################
-    ############### Data Import  ##########################################################
-    #######################################################################################
-    #######################################################################################
+
     # get PA3 Marker data
     pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem3-BodyA.txt', header=None)
 
@@ -73,5 +69,12 @@ if __name__ == '__main__':
 
     pa3_frameA2J_A_B_record_dict, pa3_frameA2J_A_B_record_dict_A_key, pa3_frameA2J_A_B_record_dict_B_key = dataimport.SampleReading_A_B_Record_Dictionary(pa3_address_name, pa3_Num_A_Marker, pa3_Num_B_Marker)
 
+    # get PA3 mesh data
+    pa3_Mesh = pd.read_csv('2022_pa345_student_data\Problem3Mesh.sur', header=None)
 
+    pa3_Mesh = pa3_Mesh.to_numpy()
+
+    pa3_vertices = dataimport.Vertices(pa3_Mesh)
+
+    pa3_triangles = dataimport.Triangles(pa3_Mesh)
     

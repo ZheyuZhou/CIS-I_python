@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 #######################################################################################
 #######################################################################################
 ############### Data Import  ##########################################################
@@ -78,3 +79,37 @@ def SampleReading_A_B_Record_Dictionary(address_name, Num_A, Num_B):
     frameA2J_A_B_record_dict_A_key = np.array(frameA2J_A_B_record_dict_A_key)
     frameA2J_A_B_record_dict_B_key = np.array(frameA2J_A_B_record_dict_B_key)
     return frameA2J_A_B_record_dict, frameA2J_A_B_record_dict_A_key, frameA2J_A_B_record_dict_B_key
+
+
+
+# read from mesh data
+def Num_Vertices(Mesh):
+    num_vertices = int(Mesh[0][0])
+    return num_vertices
+
+def Vertices(Mesh):
+    num_vertices = Num_Vertices(Mesh)
+    vertices = Mesh[1:(1+num_vertices)]
+
+    vertices_list = []
+    for row in vertices:
+        row = np.fromstring(row[0],dtype=float,sep=' ')
+        vertices_list.append(row)
+    vertices_array = np.array(vertices_list)
+    return vertices_array
+
+def Num_Triangles(Mesh):
+    num_vertices = Num_Vertices(Mesh)
+    num_traingles = int(Mesh[(1+num_vertices)][0])
+    return num_traingles
+
+def Triangles(Mesh):
+    num_vertices = Num_Vertices(Mesh)
+    traingles = Mesh[(2+num_vertices):]
+
+    traingles_list = []
+    for row in traingles:
+        row = np.fromstring(row[0],dtype=float,sep=' ')
+        traingles_list.append(row)
+    traingles_array = np.array(traingles_list)
+    return traingles_array
