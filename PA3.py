@@ -74,8 +74,11 @@ def SampleReadingsTest_ABDS(address, Num_A, Num_B):
 
     return N_A_Record, N_B_Record, N_D_record, N_S_record
 
-def Dictionary(address, Num_A, Num_B):
-        
+def pa3_SampleReadingDictionary(address_name, Num_A, Num_B):
+    frameA2J = {}
+    for name in address_name:
+        pa3_frame_SampleReadingsTest = pd.read_csv(r'C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\2022_pa345_student_data\2022 PA345 Student Data\PA3-'+name'-SampleReadingsTest.txt',
+header=None, nrows = 1)
     return pa3_Dictionary
 
 #######################################################################################
@@ -83,17 +86,15 @@ def Dictionary(address, Num_A, Num_B):
 ############### Data Import  ##########################################################
 #######################################################################################
 #######################################################################################
-pa3_BodyA = pd.read_csv(r'C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\2022_pa345_student_data\2022 PA345 Student Data\Problem3-BodyA.txt',
-header=None)
+pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem3-BodyA.txt', header=None)
 
-pa3_BodyB = pd.read_csv(r'C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\2022_pa345_student_data\2022 PA345 Student Data\Problem3-BodyB.txt',
-header=None)
+pa3_BodyB = pd.read_csv('2022_pa345_student_data\Problem3-BodyB.txt', header=None)
 
 pa3_BodyA = pa3_BodyA.to_numpy()
 pa3_BodyB = pa3_BodyB.to_numpy()
 
-# pa3_Name = np.array(['A_debug', 'B_debug', 'C_debug', 'D_debug', 'E_debug', 'D_debug', 'D_debug', 'D_debug', 'D_debug'])
-pa3_Name = np.array(['A_debug'])
+# pa3_Name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'D-Unknown', 'D-Unknown'])
+pa3_Name = np.array(['A-Debug'])
 
 pa3_A_SampleReadingsTest = pd.read_csv(r'C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\2022_pa345_student_data\2022 PA345 Student Data\PA3-A-Debug-SampleReadingsTest.txt',
 header=None,  dtype=float ,skiprows=1)
