@@ -23,6 +23,7 @@ import CloudRegistration_ as cr
 # For Body Reading
 def Num_Marker(Body): # Get Num of Marker
     Num = np.fromstring(Body[0][0],dtype=int,sep=' ')[0]
+    # print(Num)
     return Num
 
 def Body_Array(Body): # Get Body Array
@@ -48,68 +49,70 @@ def tip_XYZ(Body): # Get tip Coordnate
 
 
 # For SampleReadingsTest reading
-def SampleReadingsTest(address): # Get Body Array
-    SampleReadingsTest_ = pd.read_csv(address, header=None,  dtype=float, skiprows=1)
-    SampleReadingsTest_Array = SampleReadingsTest_.to_numpy()
-    return SampleReadingsTest_Array
+def pa3_Frame_SampleReadingsTest_Body(address_name): # Get Body Array
+    pa3_frame_SampleReadingsTest_body = pd.read_csv('2022_pa345_student_data\PA3-'+address_name+'-SampleReadingsTest.txt', header=None, skiprows = 1)
+    pa3_frame_SampleReadingsTest_body_Array = pa3_frame_SampleReadingsTest_body.to_numpy()
+    return pa3_frame_SampleReadingsTest_body_Array
 
-def SampleReadingsTest_head(address): # Get Head Array
-    SampleReadingsTest_head_ = pd.read_csv(address, header=None,  dtype=float, nrows=1)
-    SampleReadingsTest_head_Array = SampleReadingsTest_head_.to_numpy()
-    return SampleReadingsTest_head_Array
+def pa3_Frame_SampleReadingsTest_Head(address_name): # Get Head Array
+    pa3_frame_SampleReadingsTest_head = pd.read_csv('2022_pa345_student_data\PA3-'+address_name+'-SampleReadingsTest.txt', header=None, nrows = 1)
+    pa3_frame_SampleReadingsTest_head_Array = pa3_frame_SampleReadingsTest_head.to_numpy()
+    return pa3_frame_SampleReadingsTest_head_Array
 
-def SampleReadingsTest_ABDS(address, Num_A, Num_B):
-    SampleReadingsTest_Array = SampleReadingsTest(address)
-    SampleReadingsTest_head_Array = SampleReadingsTest_head(address)
-    N_S = SampleReadingsTest_head_Array[0]
-    N_samp = SampleReadingsTest_head_Array[1]
-    N_A = Num_A
-    N_B = Num_B
-    N_D = N_S - Num_A - Num_B
+def pa3_Frame_SampleReadingsTest_ABDS(address_name, Num_A, Num_B):
+    pa3_frame_SampleReadingsTest_body_Array = pa3_Frame_SampleReadingsTest_Body(address_name)
+    pa3_frame_SampleReadingsTest_head_Array = pa3_Frame_SampleReadingsTest_Head(address_name)
+    pa3_Frame_N_S = pa3_frame_SampleReadingsTest_head_Array[0][0]
+    pa3_Frame_N_samp = pa3_frame_SampleReadingsTest_head_Array[0][1]
+    pa3_Frame_N_A = Num_A
+    pa3_Frame_N_B = Num_B
+    pa3_Frame_N_D = pa3_Frame_N_S - Num_A - Num_B
 
-    N_A_Record = SampleReadingsTest_Array[:N_A]
-    N_B_Record = SampleReadingsTest_Array[N_A:(N_A+N_B)]
-    N_D_record = SampleReadingsTest_Array[(N_A+N_B):(N_A+N_B+N_D)]
-    N_S_record = SampleReadingsTest_Array[(N_A+N_B+N_D):]
+    pa3_Frame_N_A_Record = pa3_frame_SampleReadingsTest_body_Array[:pa3_Frame_N_A]
+    pa3_Frame_N_B_Record = pa3_frame_SampleReadingsTest_body_Array[pa3_Frame_N_A:(pa3_Frame_N_A+pa3_Frame_N_B)]
+    pa3_Frame_N_D_record = pa3_frame_SampleReadingsTest_body_Array[(pa3_Frame_N_A+pa3_Frame_N_B):(pa3_Frame_N_A+pa3_Frame_N_B+pa3_Frame_N_D)]
+    pa3_Frame_N_S_record = pa3_frame_SampleReadingsTest_body_Array[(pa3_Frame_N_A+pa3_Frame_N_B+pa3_Frame_N_D):]
 
-    return N_A_Record, N_B_Record, N_D_record, N_S_record
+    return pa3_Frame_N_A_Record, pa3_Frame_N_B_Record, pa3_Frame_N_D_record, pa3_Frame_N_S_record
 
-def pa3_SampleReadingDictionary(address_name, Num_A, Num_B):
-    frameA2J = {}
+def pa3_SampleReading_A_B_Record_Dictionary(address_name, Num_A, Num_B):
+    pa3_frameA2J_A_B_record_dict = {}
+    pa3_frameA2J_A_B_record_dict_A_key = []
+    pa3_frameA2J_A_B_record_dict_B_key = []
     for name in address_name:
-        pa3_frame_SampleReadingsTest = pd.read_csv(r'C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\2022_pa345_student_data\2022 PA345 Student Data\PA3-'+name'-SampleReadingsTest.txt',
-header=None, nrows = 1)
-    return pa3_Dictionary
+        # pa3_Frame_N_A_Record, pa3_Frame_N_B_Record, pa3_Frame_N_D_record, pa3_Frame_N_S_record = pa3_Frame_SampleReadingsTest_ABDS(address_name, Num_A, Num_B)
+        pa3_Frame_N_A_Record, pa3_Frame_N_B_Record,_,_= pa3_Frame_SampleReadingsTest_ABDS(name, Num_A, Num_B)
+        
+        frame_name = name
+        frame_name_A_record = name + '_A_record'
+        frame_name_B_record = name + '_B_record'
 
-#######################################################################################
-#######################################################################################
-############### Data Import  ##########################################################
-#######################################################################################
-#######################################################################################
-pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem3-BodyA.txt', header=None)
+        pa3_frameA2J_A_B_record_dict_A_key.append(frame_name_A_record)
+        pa3_frameA2J_A_B_record_dict_B_key.append(frame_name_B_record)
 
-pa3_BodyB = pd.read_csv('2022_pa345_student_data\Problem3-BodyB.txt', header=None)
+        pa3_frameA2J_A_B_record_dict[frame_name_A_record] = pa3_Frame_N_A_Record
+        pa3_frameA2J_A_B_record_dict[frame_name_B_record] = pa3_Frame_N_B_Record
 
-pa3_BodyA = pa3_BodyA.to_numpy()
-pa3_BodyB = pa3_BodyB.to_numpy()
+    pa3_frameA2J_A_B_record_dict_A_key = np.array(pa3_frameA2J_A_B_record_dict_A_key)
+    pa3_frameA2J_A_B_record_dict_B_key = np.array(pa3_frameA2J_A_B_record_dict_B_key)
+    return pa3_frameA2J_A_B_record_dict, pa3_frameA2J_A_B_record_dict_A_key, pa3_frameA2J_A_B_record_dict_B_key
 
-# pa3_Name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'D-Unknown', 'D-Unknown'])
-pa3_Name = np.array(['A-Debug'])
+# pa3_Name = np.array(['A-Debug'])
 
-pa3_A_SampleReadingsTest = pd.read_csv(r'C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\2022_pa345_student_data\2022 PA345 Student Data\PA3-A-Debug-SampleReadingsTest.txt',
-header=None,  dtype=float ,skiprows=1)
+# pa3_A_SampleReadingsTest = pd.read_csv('2022_pa345_student_data\PA3-'+pa3_Name[0]+'-SampleReadingsTest.txt',
+# header=None,  dtype=float ,skiprows=1)
 
-pa3_A_SampleReadingsTest_Array =pa3_A_SampleReadingsTest.to_numpy()
+# pa3_A_SampleReadingsTest_Array =pa3_A_SampleReadingsTest.to_numpy()
 
+# print(pa3_A_SampleReadingsTest_Array)
+# pa3_A_SampleReadingsTest_head = pd.read_csv('2022_pa345_student_data\PA3-'+pa3_Name[0]+'-SampleReadingsTest.txt',
+# header=None, nrows = 1)
 
-pa3_A_SampleReadingsTest_head = pd.read_csv(r'C:\Users\14677\Documents\GitHub\FA22-CIS-I_python\2022_pa345_student_data\2022 PA345 Student Data\PA3-A-Debug-SampleReadingsTest.txt',
-header=None, nrows = 1)
-
-pa3_A_SampleReadingsTest_head_Array = pa3_A_SampleReadingsTest_head.to_numpy()
-
-pa3_A_N_S = pa3_A_SampleReadingsTest_head_Array[0]
-pa3_A_N_samps = pa3_A_SampleReadingsTest_head_Array[1]
-
+# pa3_A_SampleReadingsTest_head_Array = pa3_A_SampleReadingsTest_head.to_numpy()
+# print(pa3_A_SampleReadingsTest_head_Array)
+# pa3_A_N_S = pa3_A_SampleReadingsTest_head_Array[0][0]
+# pa3_A_N_samps = pa3_A_SampleReadingsTest_head_Array[0][1]
+# print(pa3_A_N_S, pa3_A_N_samps)
 
 #######################################################################################
 #######################################################################################
@@ -118,6 +121,19 @@ pa3_A_N_samps = pa3_A_SampleReadingsTest_head_Array[1]
 #######################################################################################
 
 if __name__ == '__main__':
+    #######################################################################################
+    #######################################################################################
+    ############### Data Import  ##########################################################
+    #######################################################################################
+    #######################################################################################
+    # get PA3 Marker data
+    pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem3-BodyA.txt', header=None)
+
+    pa3_BodyB = pd.read_csv('2022_pa345_student_data\Problem3-BodyB.txt', header=None)
+
+    pa3_BodyA = pa3_BodyA.to_numpy()
+    pa3_BodyB = pa3_BodyB.to_numpy()
+
     Num_A_Marker = Num_Marker(pa3_BodyA)
     Num_B_Marker = Num_Marker(pa3_BodyB)
 
@@ -127,4 +143,11 @@ if __name__ == '__main__':
     tip_A_XYZ = tip_XYZ(pa3_BodyA)
     tip_B_XYZ = tip_XYZ(pa3_BodyB)
 
+    # get PA3 A B LED marker data
+    # pa3_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown', 'I-Unknown', 'J-Unknown', 'K-Unknown'])
+    pa3_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown=', 'J-Unknown'])
+
+    pa3_frameA2J_A_B_record_dict, pa3_frameA2J_A_B_record_dict_A_key, pa3_frameA2J_A_B_record_dict_B_key = pa3_SampleReading_A_B_Record_Dictionary(pa3_address_name, Num_A_Marker, Num_B_Marker)
+
+    
     
