@@ -49,23 +49,31 @@ def Frame_SampleReadingsTest_ABDS(address_name, Num_A, Num_B):
     frame_SampleReadingsTest_head_Array = Frame_SampleReadingsTest_Head(address_name)
     Frame_N_S = frame_SampleReadingsTest_head_Array[0][0]
     Frame_N_samp = frame_SampleReadingsTest_head_Array[0][1]
+
     Frame_N_A = Num_A
     Frame_N_B = Num_B
     Frame_N_D = Frame_N_S - Num_A - Num_B
 
-    Frame_N_A_Record = frame_SampleReadingsTest_body_Array[:Frame_N_A]
-    Frame_N_B_Record = frame_SampleReadingsTest_body_Array[Frame_N_A:(Frame_N_A+Frame_N_B)]
-    Frame_N_D_record = frame_SampleReadingsTest_body_Array[(Frame_N_A+Frame_N_B):(Frame_N_A+Frame_N_B+Frame_N_D)]
-    Frame_N_S_record = frame_SampleReadingsTest_body_Array[(Frame_N_A+Frame_N_B+Frame_N_D):]
+    Frame_N_A_Record = []
+    Frame_N_B_Record = []
+    Frame_N_D_Record = []
+    for i in range(Frame_N_samp):
+        r = i*(Frame_N_A + Frame_N_B + Frame_N_D)
+        Frame_N_A_Record_Sample = frame_SampleReadingsTest_body_Array[r:(r+Frame_N_A)]
+        Frame_N_B_Record_Sample = frame_SampleReadingsTest_body_Array[(r+Frame_N_A):(r+Frame_N_A+Frame_N_B)]
+        Frame_N_D_Record_Sample = frame_SampleReadingsTest_body_Array[(r+Frame_N_A+Frame_N_B):(r+Frame_N_A+Frame_N_B+Frame_N_D)]
 
-    return Frame_N_A_Record, Frame_N_B_Record, Frame_N_D_record, Frame_N_S_record
+        Frame_N_A_Record.append(Frame_N_A_Record_Sample)
+        Frame_N_B_Record.append(Frame_N_B_Record_Sample)
+        Frame_N_D_Record.append(Frame_N_D_Record_Sample)
+    return Frame_N_A_Record, Frame_N_B_Record, Frame_N_D_Record
 
 def SampleReading_A_B_Record_Dictionary(address_name, Num_A, Num_B):
     frameA2J_A_B_record_dict = {}
     frameA2J_A_B_record_dict_A_key = []
     frameA2J_A_B_record_dict_B_key = []
     for name in address_name:
-        Frame_N_A_Record, Frame_N_B_Record,_,_= Frame_SampleReadingsTest_ABDS(name, Num_A, Num_B)
+        Frame_N_A_Record, Frame_N_B_Record,_= Frame_SampleReadingsTest_ABDS(name, Num_A, Num_B)
         
         frame_name_A_record = name + '_A_record'
         frame_name_B_record = name + '_B_record'
