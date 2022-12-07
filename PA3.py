@@ -21,6 +21,7 @@ from itertools import product
 #######################################################################################
 import CloudRegistration_ as cloudregistration
 import pa345DataImport as dataimport
+import findtip_d_k as findtip_d_k
 
 # find the tip related to B
 def findTip(F_Ak, F_Bk, tipA):
