@@ -12,11 +12,10 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
     c_k_last_iter = np.zeros((4))
 
     last_error = 0.0
-
-    s_k = np.array([F_reg@d_k])
-    # print(np.shape(s_k), 's_k shape start ICP')
-
+    
     while niter < 200:
+        s_k = np.array([F_reg@d_k])
+        # print(np.shape(s_k), 's_k shape start ICP')
         
         # select search method
         if Brute == True:
@@ -48,12 +47,12 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
         last_error = last_error_new
 
         if check == [1]:
-            print('Found close enough c_k and F_reg')
+            print('Found close enough c_k and F_reg', niter)
             return c_k, F_reg_new
         
         F_reg = F_reg_new
         niter = niter + 1
-    print('Out of iteration loop c_k and F_reg')
+    print('Out of iteration loop c_k and F_reg', niter)
     return c_k, F_reg
 
 def CheckCloseness(F_reg,F_reg_new,tolerance,last_error):
