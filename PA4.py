@@ -129,8 +129,8 @@ if __name__ == '__main__':
 
     c_closest_frame = BoundingSphereSearch.BoundingSphereSearch(s_k_frame, pa3_vertices,pa3_triangles)
 
-    useBrute = False
-    useBounding = True
+    useBrute = True
+    useBounding = False
     useTree = False
 
     s_icp_frame = []

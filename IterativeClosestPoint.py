@@ -14,13 +14,14 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
     last_error = 0.0
 
     s_k = np.array([F_reg@d_k])
-    print(np.shape(s_k), 's_k shape')
+    print(np.shape(s_k), 's_k shape start ICP')
 
     while niter < 200:
         
         # select search method
         if Brute == True:
-            c_k = BruteSearch.BruteSearch(s_k, vertices, triangles) 
+            c_k = BruteSearch.BruteSearch(s_k, vertices, triangles)
+            c_k = c_k[0]
         if Bounding == True:
             c_k = BoundingSphereSearch.BoundingSphereSearch(s_k, vertices, triangles) # s_k 3d [frame, X, 4, 1]
             c_k = c_k[0]
@@ -62,7 +63,6 @@ def CheckCloseness(F_reg,F_reg_new,tolerance,last_error):
         return check, err
     last_error = err
     check = [0]
-    # check_last_error = (check, last_error)
     return check, last_error
 
 def IterativeClosestPoint(d_k, Brute, Bounding, Tree, vertices, triangles):
