@@ -10,6 +10,18 @@ import numpy as np
 def Cloudregistration(a,A):
 
     # Calc average
+    print(np.shape(a), 'a')
+    print(np.shape(a)[-1], 'a last')
+    if np.shape(a)[-1] != 3:
+        a_3_n = a[0]
+        a_3 = []
+        for row in a_3_n:
+            a_3.append(np.reshape(row[0:3], (1,3))[0])
+        a = np.array(a_3)
+    
+    print(np.shape(a), 'a after treat shape')
+
+    print(np.shape(A), 'A')
     a_bar = np.mean(a, axis=0)
 
     A_bar = np.mean(A, axis=0)
@@ -18,11 +30,12 @@ def Cloudregistration(a,A):
     a_tilde = []
     for a_ in a:
         a_tilde.append(a_bar - a_)
-    
+    # print(a_tilde, 'a_tilde', np.shape(a_tilde))
+
     A_tilde = []
     for A_ in A:
         A_tilde.append(A_bar - A_)
-
+    # print(A_tilde, 'A_tilde', np.shape(A_tilde))
     # Get H matrix
     H = np.zeros((3,3))
 

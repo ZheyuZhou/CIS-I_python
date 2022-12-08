@@ -37,8 +37,8 @@ import IterativeClosestPoint as ICP
 
 if __name__ == '__main__':
     # pa3 file names
-    pa3_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown=', 'J-Unknown'])
-    # pa3_address_name = np.array(['A-Debug'])
+    # pa3_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown=', 'J-Unknown'])
+    pa3_address_name = np.array(['A-Debug'])
     len_pa3_address_name = len(pa3_address_name)
     # get PA3 Marker data
     pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem3-BodyA.txt', header=None)
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     pa3_triangles = dataimport.Triangles(pa3_Mesh)
 
     # print(pa3_vertices, 'ver')
-    print(pa3_triangles, 'tri')
+    # print(pa3_triangles, 'tri')
     # get PA3 A B LED marker data
     pa3_frameA2J_A_B_record_dict, pa3_frameA2J_A_B_record_dict_A_key, pa3_frameA2J_A_B_record_dict_B_key = dataimport.SampleReading_A_B_Record_Dictionary(pa3_address_name, pa3_Num_A_Marker, pa3_Num_B_Marker)
 
@@ -129,8 +129,27 @@ if __name__ == '__main__':
 
     c_closest_frame = BoundingSphereSearch.BoundingSphereSearch(s_k_frame, pa3_vertices,pa3_triangles)
 
-    print(c_closest_frame)
+    useBrute = False
+    useBounding = True
+    useTree = False
+
+    s_icp_frame = []
+    c_icp_frame = []
+    dist_icp_frame = []
+    for d_k in d_k_frame:
+        s_k, c_k, dist = ICP.IterativeClosestPoint(d_k, useBrute, useBounding, useTree, pa3_vertices, pa3_triangles)
+        
+        s_icp_frame.append(s_k)
+        c_icp_frame.append(c_k)
+        dist_icp_frame.append(dist)
+    print(c_closest_frame, 'c_closest_frame')
     # print(d_k3_frame)
+    print(c_icp_frame, 'c_icp_frame')
+    
+    print(s_k_frame, 's_k_frame')
+    print(s_icp_frame, 's_icp_frame')
+
+    print(dist_icp_frame, 'dist_icp_frame')
 
 
 
