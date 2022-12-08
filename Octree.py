@@ -8,3 +8,5 @@ class BoundingBoxTreeNode:
         self.MaxRadius = self.FindMaxRadius()
         self.upperbound = self.FindMaxCoordinates()
         self.lowerbound = self.FindMinCoordinates()
+        self.Subtrees = [[[[] for i in range(2)] for j in range(2)] for k in range(2)]
+        self.ConstructSubtrees()
