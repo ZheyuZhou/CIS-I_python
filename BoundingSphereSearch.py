@@ -15,8 +15,8 @@ def Finding_centralpoint_radius(a,b,c):
 
 # Find the c_k with the bounding sphere judgement
 def Closet_bounding_points(Meshpoints,Triangle_record,s_kn):
-    print(s_kn, 's_kn')
-    print(np.shape(s_kn), 's_kn shape')
+    # print(s_kn, 's_kn')
+    # print(np.shape(s_kn), 's_kn shape')
     
     s_kn3 = np.reshape(s_kn[0:3], (1,3))[0]
     bound = np.linalg.norm(s_kn3)
@@ -42,7 +42,7 @@ def Closet_bounding_points(Meshpoints,Triangle_record,s_kn):
 
 def BoundingSphereSearch(s_k_frame, vertices,triangles):
     c_closest_frame = []
-    print(np.shape(s_k_frame), 's_k_frame shape')
+    # print(np.shape(s_k_frame), 's_k_frame shape')
     for s_k in s_k_frame:
         c_closest_sample = []
         for s in s_k:

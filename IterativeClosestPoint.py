@@ -14,7 +14,7 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
     last_error = 0.0
 
     s_k = np.array([F_reg@d_k])
-    print(np.shape(s_k), 's_k shape start ICP')
+    # print(np.shape(s_k), 's_k shape start ICP')
 
     while niter < 200:
         
@@ -32,8 +32,8 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
         c_k_last_iter = c_k
 
         # calc delta F_reg
-        print(np.shape(s_k), 's_k shape')
-        print(np.shape(c_k), 'c_k shape')
+        # print(np.shape(s_k), 's_k shape')
+        # print(np.shape(c_k), 'c_k shape')
         
 
         delta_F_reg = CloudReg.Cloudregistration(s_k, c_k) # s_k 
@@ -69,13 +69,13 @@ def IterativeClosestPoint(d_k, Brute, Bounding, Tree, vertices, triangles):
     c_k, F_reg = IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles)
 
     s_k = F_reg@d_k
-    print(np.shape(c_k), 'c_k shape at ICP end ')
+    # print(np.shape(c_k), 'c_k shape at ICP end ')
     s_k3_n = s_k
     s_k3 = []
     for row in s_k3_n:
         s_k3.append(np.reshape(row[0:3], (1,3))[0])
     s_k = np.array(s_k3)
-    print(np.shape(s_k), 's_k 3d shape at ICP end')
+    # print(np.shape(s_k), 's_k 3d shape at ICP end')
     dist = np.linalg.norm(s_k - c_k)
-    print(dist, 'dist at ICP end')
+    # print(dist, 'dist at ICP end')
     return s_k, c_k, dist
