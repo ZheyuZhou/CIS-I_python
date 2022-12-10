@@ -38,7 +38,7 @@ import IterativeClosestPoint as ICP
 if __name__ == '__main__':
     # pa3 file names
     # pa3_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown=', 'J-Unknown'])
-    pa3_address_name = np.array(['A-Debug'])
+    pa3_address_name = np.array(['B-Debug'])
     len_pa3_address_name = len(pa3_address_name)
     # get PA3 Marker data
     pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem3-BodyA.txt', header=None)

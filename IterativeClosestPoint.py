@@ -24,6 +24,7 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
         if Bounding == True:
             c_k = BoundingSphereSearch.BoundingSphereSearch(s_k, vertices, triangles) # s_k 3d [frame, X, 4, 1]
             c_k = c_k[0]
+            # print(c_k, 'check c_k')
         # if Tree == True:
             # c_k = _TreeSearch._TreeSearch(_, s_k, vertices, triangles)
 
