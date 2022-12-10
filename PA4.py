@@ -38,12 +38,12 @@ import IterativeClosestPoint as ICP
 if __name__ == '__main__':
     # pa3 file names
     # pa3_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown=', 'J-Unknown'])
-    pa3_address_name = np.array(['B-Debug'])
+    pa3_address_name = np.array(['C-Debug'])
     len_pa3_address_name = len(pa3_address_name)
     # get PA3 Marker data
-    pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem3-BodyA.txt', header=None)
+    pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem4-BodyA.txt', header=None)
 
-    pa3_BodyB = pd.read_csv('2022_pa345_student_data\Problem3-BodyB.txt', header=None)
+    pa3_BodyB = pd.read_csv('2022_pa345_student_data\Problem4-BodyB.txt', header=None)
 
     pa3_BodyA = pa3_BodyA.to_numpy()
     pa3_BodyB = pa3_BodyB.to_numpy()
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     tip_B_XYZ = dataimport.tip_XYZ(pa3_BodyB)
 
     # get PA3 mesh data
-    pa3_Mesh = pd.read_csv('2022_pa345_student_data\Problem3Mesh.sur', header=None)
+    pa3_Mesh = pd.read_csv('2022_pa345_student_data\Problem4MeshFile.sur', header=None)
 
     pa3_Mesh = pa3_Mesh.to_numpy()
 

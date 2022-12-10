@@ -35,12 +35,12 @@ def tip_XYZ(Body): # Get tip Coordnate
 
 # For SampleReadingsTest reading
 def Frame_SampleReadingsTest_Body(address_name): # Get Body Array
-    frame_SampleReadingsTest_body = pd.read_csv('2022_pa345_student_data\PA3-'+address_name+'-SampleReadingsTest.txt', header=None, skiprows = 1)
+    frame_SampleReadingsTest_body = pd.read_csv('2022_pa345_student_data\PA4-'+address_name+'-SampleReadingsTest.txt', header=None, skiprows = 1)
     frame_SampleReadingsTest_body_Array = frame_SampleReadingsTest_body.to_numpy()
     return frame_SampleReadingsTest_body_Array
 
 def Frame_SampleReadingsTest_Head(address_name): # Get Head Array
-    frame_SampleReadingsTest_head = pd.read_csv('2022_pa345_student_data\PA3-'+address_name+'-SampleReadingsTest.txt', header=None, nrows = 1)
+    frame_SampleReadingsTest_head = pd.read_csv('2022_pa345_student_data\PA4-'+address_name+'-SampleReadingsTest.txt', header=None, nrows = 1)
     frame_SampleReadingsTest_head_Array = frame_SampleReadingsTest_head.to_numpy()
     return frame_SampleReadingsTest_head_Array
 
