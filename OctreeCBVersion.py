@@ -1,5 +1,5 @@
-from typing_extensions import Self
 import numpy as np
+
 
 def Finding_centralpoint_radius(a,b,c):
     f = (a+b)/2

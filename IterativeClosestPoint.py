@@ -1,24 +1,30 @@
 import numpy as np
 import BruteSearch as BruteSearch
-import BoundingSphereSearch as BoundingSphereSearch
+import BoundingSphereSearch as BSSearch
+import Octree
 import FindCloestPoint as FCP
 import CloudRegistration_ as CloudReg
+import BoundingSphereClass as BSC
+import OcTreeSearch
 
 def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
     # initial Frame guess
     F_reg = np.eye(4)
 
     niter = 0
-    c_k_last_iter = np.zeros((4))
+    # c_k_last_iter = np.zeros((3))
 
     last_error = 0.0
+
+    boundspheres, numspheres = BSC.Closet_bounding_points(vertices, triangles)
     
+    tree = Octree.BoundingOcTree(boundspheres, numspheres)
     while niter < 200:
 
         s_k = np.array([F_reg@d_k])
 
-        if niter == 0:
-            s_k = s_k + 10
+        # if niter == 0:
+        #     s_k = s_k + 10
         # print(np.shape(s_k), 's_k shape start ICP')
         
         # select search method
@@ -26,20 +32,18 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
             c_k = BruteSearch.BruteSearch(s_k, vertices, triangles)
             c_k = c_k[0]
         if Bounding == True:
-            c_k = BoundingSphereSearch.BoundingSphereSearch(s_k, vertices, triangles) # s_k 3d [frame, X, 4, 1]
+            c_k = BSSearch.BoundingSphereSearch(s_k, vertices, triangles) # s_k 3d [frame, X, 4, 1]
             c_k = c_k[0]
             # print(c_k, 'check c_k')
-        # if Tree == True:
-            # c_k = _TreeSearch._TreeSearch(_, s_k, vertices, triangles)
+        if Tree == True:
+            c_k = OcTreeSearch.OcTreeSearch(s_k, vertices, triangles)
 
-        # save c_k
-        c_k_last_iter = c_k
+
 
         # calc delta F_reg
         # print(np.shape(s_k), 's_k shape')
         # print(np.shape(c_k), 'c_k shape')
         
-
         delta_F_reg = CloudReg.Cloudregistration(s_k, c_k) # s_k 
 
         # itered F_reg

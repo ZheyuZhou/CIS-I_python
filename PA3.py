@@ -23,7 +23,7 @@ import CloudRegistration_ as cloudregistration
 import pa345DataImport as dataimport
 import findtipdk as findtipdk
 import BruteSearch as BruteSearch
-import BoundingSphereSearch as BoundingSphereSearch
+import BoundingSphereSearch as BSSearch
 
 # # find the tip related to B
 # def findTip(F_Ak, F_Bk, tipA):
@@ -266,7 +266,7 @@ if __name__ == '__main__':
     #     c_closest_frame.append(c_closest_sample)
     # c_closest_frame = np.array(c_closest_frame)
 
-    c_closest_frame = BoundingSphereSearch.BoundingSphereSearch(s_k_frame, pa3_vertices,pa3_triangles)
+    c_closest_frame = BSSearch.BoundingSphereSearch(s_k_frame, pa3_vertices,pa3_triangles)
 
     # print(c_closest_frame)
     # print(d_k3_frame)

@@ -23,7 +23,7 @@ import CloudRegistration_ as cloudregistration
 import pa345DataImport as dataimport
 import findtipdk as findtipdk
 import BruteSearch as BruteSearch
-import BoundingSphereSearch as BoundingSphereSearch
+import BoundingSphereSearch as BSSearch
 import FindCloestPoint as FCP
 import IterativeClosestPoint as ICP
 
@@ -38,55 +38,55 @@ import IterativeClosestPoint as ICP
 if __name__ == '__main__':
     # pa3 file names
     # pa3_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown=', 'J-Unknown'])
-    pa3_address_name = np.array(['C-Debug'])
-    len_pa3_address_name = len(pa3_address_name)
+    pa4_address_name = np.array(['A-Debug'])
+    len_pa4_address_name = len(pa4_address_name)
     # get PA3 Marker data
-    pa3_BodyA = pd.read_csv('2022_pa345_student_data\Problem4-BodyA.txt', header=None)
+    pa4_BodyA = pd.read_csv('2022_pa345_student_data\Problem4-BodyA.txt', header=None)
 
-    pa3_BodyB = pd.read_csv('2022_pa345_student_data\Problem4-BodyB.txt', header=None)
+    pa4_BodyB = pd.read_csv('2022_pa345_student_data\Problem4-BodyB.txt', header=None)
 
-    pa3_BodyA = pa3_BodyA.to_numpy()
-    pa3_BodyB = pa3_BodyB.to_numpy()
+    pa4_BodyA = pa4_BodyA.to_numpy()
+    pa4_BodyB = pa4_BodyB.to_numpy()
 
-    pa3_Num_A_Marker = dataimport.Num_Marker(pa3_BodyA)
-    pa3_Num_B_Marker = dataimport.Num_Marker(pa3_BodyB)
+    pa4_Num_A_Marker = dataimport.Num_Marker(pa4_BodyA)
+    pa4_Num_B_Marker = dataimport.Num_Marker(pa4_BodyB)
 
-    pa3_Marker_A_XYZ = dataimport.Marker_XYZ(pa3_BodyA)
-    pa3_Marker_B_XYZ = dataimport.Marker_XYZ(pa3_BodyB)
+    pa4_Marker_A_XYZ = dataimport.Marker_XYZ(pa4_BodyA)
+    pa4_Marker_B_XYZ = dataimport.Marker_XYZ(pa4_BodyB)
 
-    tip_A_XYZ = dataimport.tip_XYZ(pa3_BodyA)
-    tip_B_XYZ = dataimport.tip_XYZ(pa3_BodyB)
+    tip_A_XYZ = dataimport.tip_XYZ(pa4_BodyA)
+    tip_B_XYZ = dataimport.tip_XYZ(pa4_BodyB)
 
     # get PA3 mesh data
-    pa3_Mesh = pd.read_csv('2022_pa345_student_data\Problem4MeshFile.sur', header=None)
+    pa4_Mesh = pd.read_csv('2022_pa345_student_data\Problem4MeshFile.sur', header=None)
 
-    pa3_Mesh = pa3_Mesh.to_numpy()
+    pa4_Mesh = pa4_Mesh.to_numpy()
 
-    pa3_vertices = dataimport.Vertices(pa3_Mesh)
+    pa4_vertices = dataimport.Vertices(pa4_Mesh)
 
-    pa3_triangles = dataimport.Triangles(pa3_Mesh)
+    pa4_triangles = dataimport.Triangles(pa4_Mesh)
 
     # print(pa3_vertices, 'ver')
     # print(pa3_triangles, 'tri')
     # get PA3 A B LED marker data
-    pa3_frameA2J_A_B_record_dict, pa3_frameA2J_A_B_record_dict_A_key, pa3_frameA2J_A_B_record_dict_B_key = dataimport.SampleReading_A_B_Record_Dictionary(pa3_address_name, pa3_Num_A_Marker, pa3_Num_B_Marker)
+    pa3_frameA2J_A_B_record_dict, pa4_frameA2J_A_B_record_dict_A_key, pa4_frameA2J_A_B_record_dict_B_key = dataimport.SampleReading_A_B_Record_Dictionary(pa4_address_name, pa4_Num_A_Marker, pa4_Num_B_Marker)
 
     # frame AB marker cloudregistration
 
     # Cloud Registration
     F_A_frame = []
     F_B_frame = []
-    for frame in range(len_pa3_address_name):
-        A_key = pa3_frameA2J_A_B_record_dict_A_key[frame]
-        B_key = pa3_frameA2J_A_B_record_dict_B_key[frame]
+    for frame in range(len_pa4_address_name):
+        A_key = pa4_frameA2J_A_B_record_dict_A_key[frame]
+        B_key = pa4_frameA2J_A_B_record_dict_B_key[frame]
         frame_A_record_XYZ = pa3_frameA2J_A_B_record_dict[A_key]
         frame_B_record_XYZ = pa3_frameA2J_A_B_record_dict[B_key]
 
         F_A = []
         F_B = []
         for sample in range(len(frame_A_record_XYZ)):
-            F_A.append(cloudregistration.Cloudregistration(pa3_Marker_A_XYZ, frame_A_record_XYZ[sample]))
-            F_B.append(cloudregistration.Cloudregistration(pa3_Marker_B_XYZ, frame_B_record_XYZ[sample]))
+            F_A.append(cloudregistration.Cloudregistration(pa4_Marker_A_XYZ, frame_A_record_XYZ[sample]))
+            F_B.append(cloudregistration.Cloudregistration(pa4_Marker_B_XYZ, frame_B_record_XYZ[sample]))
             # F_A.append(cloudregistration.Cloudregistration(frame_A_record_XYZ[sample], pa3_Marker_A_XYZ))
             # F_B.append(cloudregistration.Cloudregistration(frame_B_record_XYZ[sample], pa3_Marker_B_XYZ))
         F_A = np.array(F_A)
@@ -127,17 +127,17 @@ if __name__ == '__main__':
 
     # c_closest_frame = BruteSearch.BruteSearch(s_k_frame, pa3_vertices,pa3_triangles)
 
-    c_closest_frame = BoundingSphereSearch.BoundingSphereSearch(s_k_frame, pa3_vertices,pa3_triangles)
+    c_closest_frame = BSSearch.BoundingSphereSearch(s_k_frame, pa4_vertices,pa4_triangles)
 
-    useBrute = True
+    useBrute = False
     useBounding = False
-    useTree = False
+    useTree = True
 
     s_icp_frame = []
     c_icp_frame = []
     dist_icp_frame = []
     for d_k in d_k_frame:
-        s_k, c_k, dist = ICP.IterativeClosestPoint(d_k, useBrute, useBounding, useTree, pa3_vertices, pa3_triangles)
+        s_k, c_k, dist = ICP.IterativeClosestPoint(d_k, useBrute, useBounding, useTree, pa4_vertices, pa4_triangles)
         
         s_icp_frame.append(s_k)
         c_icp_frame.append(c_k)
@@ -145,7 +145,8 @@ if __name__ == '__main__':
     # print(c_closest_frame, 'c_closest_frame')
     # print(d_k3_frame)
     print(c_icp_frame, 'c_icp_frame')
-    
+    print(np.shape(c_icp_frame))
+
     # print(s_k_frame, 's_k_frame')
     print(s_icp_frame, 's_icp_frame')
 
@@ -159,35 +160,35 @@ if __name__ == '__main__':
     #######################################################################################
     #######################################################################################
 
-    # output_name = np.array(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J'])
+    output_name = np.array(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J'])
 
-    # output_frame = []
-    # for i in range (len_pa3_address_name):
-    #     d_k3_sample = d_k3_frame[i]
-    #     c_closest_sample = c_closest_frame[i]
+    output_frame = []
+    for i in range (len_pa4_address_name):
+        d_k3_sample = d_k3_frame[i]
+        c_closest_sample = c_closest_frame[i]
         
-    #     output_sample = []
-    #     output_num = len(d_k3_sample)
-    #     output_text = "pa3-"+output_name[i]+"-Output.txt"
-    #     output_row = np.array([[output_num, output_text,"NaN","NaN","NaN","NaN","NaN"]])
+        output_sample = []
+        output_num = len(d_k3_sample)
+        output_text = "pa4-"+output_name[i]+"-Output.txt"
+        output_row = np.array([[output_num, output_text,"NaN","NaN","NaN","NaN","NaN"]])
         
-    #     for j in range(len(d_k3_sample)):
-    #         d_k3 = d_k3_sample[j]
-    #         c_closest = c_closest_sample[j]
-    #         diff = np.array([np.linalg.norm(d_k3 - c_closest)])
+        for j in range(len(d_k3_sample)):
+            d_k3 = d_k3_sample[j]
+            c_closest = c_closest_sample[j]
+            diff = np.array([np.linalg.norm(d_k3 - c_closest)])
 
-    #         output = np.hstack((d_k3, c_closest, diff))
-    #         output_sample.append(output)
-    #     output_sample = np.array(output_sample)
+            output = np.hstack((d_k3, c_closest, diff))
+            output_sample.append(output)
+        output_sample = np.array(output_sample)
 
-    #     output = np.concatenate((output_row, output_sample),axis=0)
-    #     print(np.shape(output))
-    #     print(output)
-    #     pd.DataFrame(output).to_csv('2022_pa345_student_data\Output\PA3_'+output_name[i]+'_output.txt')
-    #     pd.DataFrame(output).to_csv('2022_pa345_student_data\Output\PA3_'+output_name[i]+'_output.csv')
+        output = np.concatenate((output_row, output_sample),axis=0)
+        print(np.shape(output))
+        print(output)
+        pd.DataFrame(output).to_csv('2022_pa345_student_data\Output\PA4_'+output_name[i]+'_output.txt')
+        pd.DataFrame(output).to_csv('2022_pa345_student_data\Output\PA4_'+output_name[i]+'_output.csv')
 
-    #     output_frame.append(output_sample)
-    # output_frame = np.array(output_frame)
+        output_frame.append(output_sample)
+    output_frame = np.array(output_frame)
 
     #######################################################################################
     #######################################################################################
@@ -195,8 +196,8 @@ if __name__ == '__main__':
     #######################################################################################
     #######################################################################################
     # pa3_test_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug'])
-    # for i in range(len(pa3_test_name)):
-    #     check = pd.read_csv('2022_pa345_student_data\PA3-'+pa3_test_name[i]+'-Output.txt',header=None, skiprows = 1)
+    # for i in range(len(pa4_test_name)):
+    #     check = pd.read_csv('2022_pa345_student_data\PA4-'+pa4_test_name[i]+'-Output.txt',header=None, skiprows = 1)
     #     check = check.to_numpy()
     #     check_array = []
     #     for row in check:

@@ -2,7 +2,7 @@ import numpy as np
 import FindCloestPoint as FCP
 
 class BoundingSphereClass:
-    def __init__(self, radius, center):
+    def __init__(self, radius, center, corner):
 
         # self.s_k_frame = s_k_frame
         # self.vertices = vertices
@@ -13,6 +13,7 @@ class BoundingSphereClass:
         # self.BoundingSphereSearch = self.BoundingSphereSearch()
         self.radius = radius
         self.center = center
+        self.corner = corner
         
 
 def Finding_centralpoint_radius(a,b,c):
@@ -39,9 +40,12 @@ def Closet_bounding_points(Meshpoints,Triangle_record):
         p = Meshpoints[n1]
         q = Meshpoints[n2]
         r = Meshpoints[n3]
-        ph = Finding_centralpoint_radius(p,q,r)[1]
-        ct = Finding_centralpoint_radius(p,q,r)[0]
-        boundspheres.append(BoundingSphereClass(ct, ph))
+
+        corner = np.array([p,q,r])
+
+        radius = Finding_centralpoint_radius(p,q,r)[1]
+        center = Finding_centralpoint_radius(p,q,r)[0]
+        boundspheres.append(BoundingSphereClass(radius, center, corner))
     
     numspheres = len(boundspheres)
     return boundspheres, numspheres
