@@ -142,7 +142,7 @@ if __name__ == '__main__':
         s_icp_frame.append(s_k)
         c_icp_frame.append(c_k)
         dist_icp_frame.append(dist)
-    print(c_closest_frame, 'c_closest_frame')
+    # print(c_closest_frame, 'c_closest_frame')
     # print(d_k3_frame)
     print(c_icp_frame, 'c_icp_frame')
     

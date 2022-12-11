@@ -1,8 +1,9 @@
 import numpy as np
+import BoundingSphereClass
 
 class BoundingBoxTreeNode:
-    def __init__(self, BoundingSpheres, numSpheres):
-        self.Spheres = BoundingSpheres
+    def __init__(self, boundingSpheres, numSpheres):
+        self.Spheres = boundingSpheres
         self.nSpheres = numSpheres
         self.Center = self.Centroid()
         self.MaxRadius = self.FindMaxRadius()
