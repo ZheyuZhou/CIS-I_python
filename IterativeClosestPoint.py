@@ -18,7 +18,7 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
         s_k = np.array([F_reg@d_k])
 
         if niter == 0:
-            s_k = s_k + 1000
+            s_k = s_k + 10
         # print(np.shape(s_k), 's_k shape start ICP')
         
         # select search method
