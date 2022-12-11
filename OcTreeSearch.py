@@ -23,13 +23,26 @@ def OcTreeSearch(d_k, vertices, triangles):
         
     tree = Octree.BoundingOcTree(boundspheres, numspheres)
 
-    newcloest = []
-    for d in d_kall:
-        cloest = [vertices[int(triangles[0][0])]]
-        bound = [np.linalg.norm(cloest - d)]
+    new_closest = []
+    first_closest = vertices[int(triangles[0][0])]
+    first_bound = np.linalg.norm(first_closest - d_kall[0])
+    all_closest = np.zeros((len(d_kall), 3))
+    all_bound = np.zeros((len(d_kall), 1))
+    for i in range(len(d_kall)):
+        for j in range(3):
+            all_closest[i][j] = first_closest[j]
+        all_bound[i][0] = first_bound
+    closest = [0]
+    bound = [0]
+    adjust = 1
+    for i in range(len(d_kall)):
+        closest[0] = all_closest[i]
+        bound[0] = all_bound[i]
         # print(d, 'd_k at Octree search for loop')
-        tree.FindClosestPoint(d, bound, cloest)
-        new = cloest[0]
-        newcloest.append(new)
+        tree.FindClosestPoint(d_kall[i], bound, closest)
+        new = closest[0]
+        all_closest[i] = closest[0] + adjust
+        all_bound[i] = bound[0] + adjust
+        new_closest.append(new)
     # print(newcloest, ' new c_k at OctreeSearch')
-    return newcloest
+    return new_closest

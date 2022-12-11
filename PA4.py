@@ -8,7 +8,6 @@ import numpy as np
 # D. Cournapeau, P. Virtanen, A. R. Terrel, NumPy, GitHub. (n.d.). https://github.com/numpy (accessed October 12, 2022). 
 import pandas as pd
 # W. McKinney, Pandas, Pandas. (2022). https://pandas.pydata.org/ (accessed October 12, 2022). 
-# from tqdm import tqdm_gui
 
 
 #######################################################################################
@@ -35,8 +34,8 @@ import IterativeClosestPoint as ICP
 
 if __name__ == '__main__':
     # pa4 file names run A-K one by one since long run time
-    # pa4_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown=', 'J-Unknown', 'K-Unknown'])
-    pa4_address_name = np.array(['A-Debug'])
+    # pa4_address_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug', 'G-Unknown', 'H-Unknown', 'J-Unknown', 'K-Unknown'])
+    pa4_address_name = np.array(['H-Unknown'])
 
     # read s_k d_k vertices triangles
     s_k_frame, d_k_frame, pa4_vertices, pa4_triangles = sk_ck.sk_ck(pa4_address_name)
@@ -66,8 +65,7 @@ if __name__ == '__main__':
     dist = []
     for i in range(len(s_icp_frame)):
         dist.append(np.array([np.linalg.norm(s_icp_frame[i] - c_icp_frame[i])]))
-    dist_icp_fram = np.array(dist)
-
+    dist_icp_frame = np.array(dist)
     # print(dist_icp_fram, 'dist_icp_fram')
 
     #######################################################################################
@@ -76,11 +74,11 @@ if __name__ == '__main__':
     #######################################################################################
     #######################################################################################
     # output_name = np.array(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K]) run A-K one by one
-    output_name = np.array(['A'])
+    output_name = np.array(['H'])
     
     # combine all the output to a single array
     out_put_array_frame = np.hstack((s_icp_frame, c_icp_frame, dist_icp_frame))
-        
+
     output_num_frame = len(out_put_array_frame)
     output_text_frame = "pa4-"+output_name[0]+"-Output.txt"
     output_row = np.array([[output_num_frame, output_text_frame,"NaN","NaN","NaN","NaN","NaN"]])
@@ -89,4 +87,4 @@ if __name__ == '__main__':
     print(out_put_frame)
 
     # export to txt
-    pd.DataFrame(out_put_frame).to_csv('2022_pa345_student_data\Output\PA4_'+output_name[0]+'_output.txt')
+    pd.DataFrame(out_put_frame).to_csv('2022_pa345_student_data\Output\PA4_'+output_name[0]+'_output.txt', sep = ',', index = False, header= False)

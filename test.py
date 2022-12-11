@@ -1,24 +1,22 @@
 import numpy as np
-import FindCloestPoint as FCP
-# import pandas as pd
-# pa3_test_name = np.array(['A-Debug'])
-# for i in range(len(pa3_test_name)):
-#     check = pd.read_csv('2022_pa345_student_data\PA3-'+pa3_test_name[i]+'-Output.txt',header=None, skiprows = 1)
-#     check = check.to_numpy()
-#     check_array = []
-#     for row in check:
-#         row_array = np.fromstring(row[0],dtype=float,sep=' ')
-#         check_array.append(row_array)
-#     check_array = np.array(check_array)    
-#     print(check_array)
+import pandas as pd
+pa4_test_name = np.array(['A-Debug', 'B-Debug', 'C-Debug', 'D-Debug', 'E-Debug', 'F-Debug'])
+pa4_output_name = np.array(['A', 'B', 'C', 'D', 'E', 'F'])
+for i in range(len(pa4_test_name)):
+    check = pd.read_csv('2022_pa345_student_data\PA4-'+pa4_test_name[i]+'-Output.txt',header=None, skiprows = 1)
 
-a = np.array([-9.827567265024626, -13.442350123557883, -1.221254889135011])
+    check = check.to_numpy()
+    check_array = []
+    for row in check:
+        row_array = np.fromstring(row[0],dtype=float,sep=' ')
+        check_array.append(row_array)
+    check_array = np.array(check_array)    
 
-p = np.array([-20.002115, -22.548090, -46.172775])
-q = np.array([-16.744041, -23.458670, -44.089203])
-r = np.array([-20.032549, -25.838306, -43.115608])
+    output = pd.read_csv('2022_pa345_student_data\Output\PA4_'+pa4_output_name[i]+'_output.txt')
+    output = output.to_numpy()
 
-c, lac = FCP.Find_closet_triangle_point(a,p,q,r)
-
-print(c)
-print(lac)
+    diff = np.linalg.norm(check_array - output)
+    if diff < 0.5:
+        print(pa4_test_name[i]+" Test Passed \(o^ ^o)/", diff)
+    else:
+        print(pa4_test_name[i]+" Test Fail!!!!!!", diff)

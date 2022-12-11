@@ -4,9 +4,8 @@ def Find_closet_triangle_point(a,p,q,r):
     k = np.array([[q[0]-p[0],r[0]-p[0]],[q[1]-p[1],r[1]-p[1]],[q[2]-p[2],r[2]-p[2]]])
     a = np.reshape(a[0:3], (1,3))[0]
     # D. Gupta, Numpy.reshape#, Numpy.reshape - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.reshape.html (accessed October 13, 2022). 
-    ld = np.linalg.lstsq(k,a - p, rcond=None)[0][0]
+    ld, u = np.linalg.lstsq(k,a - p, rcond=None)[0]
     # I. Polat, Numpy.linalg.lstsq#, Numpy.linalg.lstsq - NumPy v1.23 Manual. (2022). https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html (accessed October 13, 2022). 
-    u = np.linalg.lstsq(k,a - p, rcond=None)[0][1]
     c = p + ld * (q-p) + u * (r-p)
     # Discussion of the point out of the triangle
     if ld>=0 and u>=0 and ld+u<=1:

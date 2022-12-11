@@ -13,44 +13,6 @@ class BoundingOcTree:
         self.Subtrees = [[[[] for i in range(2)] for j in range(2)] for k in range(2)]
         self.ConstructSubtrees()
 
-    # Get centroid of all the sphere center point.
-    def Centroid(self):
-        if self.nSpheres == 0:
-            return
-        centroid = np.zeros(3)
-        for sphere in self.Spheres:
-            centroid += sphere.center
-        cent = centroid/self.nSpheres
-        return cent
-
-    # Get the Max radius of the sphere with the sphere list
-    def FindMaxRadius(self):
-        if self.nSpheres == 0:
-            return
-        MaxRadius = self.Spheres[0].radius
-        for sphere in self.Spheres:
-
-            if sphere.radius > MaxRadius:
-                MaxRadius = sphere.radius
-        return MaxRadius
-        
-    # Get the upper bound of the coordinate.    
-    def FindMaxCoordinates(self):
-        if self.nSpheres == 0:
-            return
-        maxcoord_stack = np.vstack([S.center + S.radius for S in self.Spheres])
-        maxcoord = np.max(maxcoord_stack, axis=0)
-        return maxcoord
-    
-    # Get the lower bound of the coordinate.
-    def FindMinCoordinates(self):
-        if self.nSpheres == 0:
-            return
-        mincoord_stack = np.vstack([S.center - S.radius for S in self.Spheres])
-        mincoord = np.min(mincoord_stack, axis=0)
-        return mincoord
-
-
     # Construct a subtree.
     def ConstructSubtrees(self):
         # print(self.nSpheres, self.MaxCoord, self.MinCoord, 'XXXXXXXXXXXXXXXXXXXXXXX')
@@ -144,3 +106,40 @@ class BoundingOcTree:
             # print(closest_point, 'cloest_point at Octree')
             # print(closest, 'cloest at Octree')
             closest_point[0] = closest
+
+    # Get centroid of all the sphere center point.
+    def Centroid(self):
+        if self.nSpheres == 0:
+            return
+        centroid = np.zeros(3)
+        for sphere in self.Spheres:
+            centroid += sphere.center
+        cent = centroid/self.nSpheres
+        return cent
+
+    # Get the Max radius of the sphere with the sphere list
+    def FindMaxRadius(self):
+        if self.nSpheres == 0:
+            return
+        MaxRadius = self.Spheres[0].radius
+        for sphere in self.Spheres:
+
+            if sphere.radius > MaxRadius:
+                MaxRadius = sphere.radius
+        return MaxRadius
+        
+    # Get the upper bound of the coordinate.    
+    def FindMaxCoordinates(self):
+        if self.nSpheres == 0:
+            return
+        maxcoord_stack = np.vstack([S.center + S.radius for S in self.Spheres])
+        maxcoord = np.max(maxcoord_stack, axis=0)
+        return maxcoord
+    
+    # Get the lower bound of the coordinate.
+    def FindMinCoordinates(self):
+        if self.nSpheres == 0:
+            return
+        mincoord_stack = np.vstack([S.center - S.radius for S in self.Spheres])
+        mincoord = np.min(mincoord_stack, axis=0)
+        return mincoord

@@ -12,7 +12,7 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
     F_reg = np.eye(4)
 
     niter = 0
-    # c_k_last_iter = np.zeros((3))
+    # c_k_last = vertices[int(triangles[0][0])]
 
     last_error = 0.0
 
@@ -38,7 +38,7 @@ def IterativePointFrameSearch(d_k, Brute, Bounding, Tree, vertices, triangles):
         if Tree == True:
             c_k = OcTreeSearch.OcTreeSearch(s_k, vertices, triangles)
 
-
+        # c_k_last = c_k
 
         # calc delta F_reg
         # print(np.shape(s_k), 's_k shape')
