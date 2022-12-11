@@ -84,6 +84,6 @@ def IterativeClosestPoint(d_k, Brute, Bounding, Tree, vertices, triangles):
         s_k3.append(np.reshape(row[0:3], (1,3))[0])
     s_k = np.array(s_k3)
     # print(np.shape(s_k), 's_k 3d shape at ICP end')
-    dist = np.linalg.norm(s_k - c_k)
+    # dist = np.linalg.norm(s_k - c_k)
     # print(dist, 'dist at ICP end')
-    return s_k, c_k, dist
+    return s_k, c_k
